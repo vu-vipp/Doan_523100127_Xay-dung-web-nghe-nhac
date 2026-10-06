@@ -1,7 +1,7 @@
 const db = require('../config/db');
 module.exports = {
   async plans() {
-    const [rows] = await db.execute('SELECT * FROM GoiVIP ORDER BY Gia, ThoiHan');
+    const [rows] = await db.execute('SELECT * FROM GoiVIP WHERE Gia > 0 ORDER BY Gia, ThoiHan');
     return rows;
   },
   async plan(planId) {
