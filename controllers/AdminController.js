@@ -14,6 +14,8 @@ const COVER_MIMES = {
   '.png': new Set(['image/png','application/octet-stream'])
 };
 const id = value => { const n=Number(value); return Number.isSafeInteger(n) && n>0 ? n : null; };
+const ADMIN_PAGE_SIZE = 10;
+const pageNo = value => { const n=Number(value); return Number.isSafeInteger(n) && n>0 ? n : 1; };
 
 function parseSong(body, existing) {
   const name=String(body.name||'').trim();
@@ -54,10 +56,22 @@ async function songFormData() { return Promise.all([Song.artists(), Song.genres(
 exports.dashboard = async (req,res,next) => {
   try {
     const filter=['VIP','FREE'].includes(req.query.type)?req.query.type:'ALL';
-    const [songs,pending,totalSongs,filteredCount] = await Promise.all([
-      Song.list({type:filter,limit:200,includeInactive:true}), VIP.pending(), Song.count('ALL',true), Song.count(filter,true)
+    const requestedPage=pageNo(req.query.page);
+    const [pending,totalSongs,filteredCount] = await Promise.all([
+      VIP.pending(), Song.count('ALL',true), Song.count(filter,true)
     ]);
-    res.render('admin/index',{title:'Quản trị hệ thống',songs,pending,totalSongs,filteredCount,filter});
+    const totalPages=Math.max(1,Math.ceil(filteredCount/ADMIN_PAGE_SIZE));
+    const page=Math.min(requestedPage,totalPages);
+    const songs=await Song.list({
+      type:filter,
+      limit:ADMIN_PAGE_SIZE,
+      offset:(page-1)*ADMIN_PAGE_SIZE,
+      includeInactive:true
+    });
+    res.render('admin/index',{
+      title:'Quản trị hệ thống',songs,pending,totalSongs,filteredCount,filter,
+      page,totalPages,pageSize:ADMIN_PAGE_SIZE
+    });
   } catch(err){next(err);}
 };
 
@@ -65,12 +79,20 @@ exports.users=async(req,res,next)=>{
   try {
     const status=['ACTIVE','LOCKED'].includes(req.query.status)?req.query.status:'ALL';
     const search=String(req.query.q||'').trim().slice(0,100);
-    const [users,totalUsers,filteredUsers]=await Promise.all([
-      User.listAdmin({search,status,limit:200}),
+    const requestedPage=pageNo(req.query.page);
+    const [totalUsers,filteredUsers]=await Promise.all([
       User.countAdmin(),
       User.countAdmin({search,status})
     ]);
-    res.render('admin/users',{title:'Quản lý người dùng',users,totalUsers,filteredUsers,search,status});
+    const totalPages=Math.max(1,Math.ceil(filteredUsers/ADMIN_PAGE_SIZE));
+    const page=Math.min(requestedPage,totalPages);
+    const users=await User.listAdmin({
+      search,status,limit:ADMIN_PAGE_SIZE,offset:(page-1)*ADMIN_PAGE_SIZE
+    });
+    res.render('admin/users',{
+      title:'Quản lý người dùng',users,totalUsers,filteredUsers,search,status,
+      page,totalPages,pageSize:ADMIN_PAGE_SIZE
+    });
   } catch(err){next(err);}
 };
 
