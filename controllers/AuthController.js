@@ -16,7 +16,7 @@ exports.register = async (req,res,next) => {
     const hash = await bcrypt.hash(password, 12);
     try { await User.create({name,email,hash}); }
     catch(err) { if(err.code==='ER_DUP_ENTRY') { flash(req,'Email đã được đăng ký.','warning'); return res.redirect('/register'); } throw err; }
-    flash(req,'Đăng ký thành công. Hãy đăng nhập!','success'); res.redirect('/login');
+    flash(req,'Đăng ký thành công. Bạn được tặng VIP dùng thử 1 ngày. Hãy đăng nhập!','success'); res.redirect('/login');
   } catch (err) { next(err); }
 };
 exports.login = async (req,res,next) => {
@@ -26,6 +26,11 @@ exports.login = async (req,res,next) => {
     const user = email.length<=150 && password.length<=128 ? await User.findByEmail(email) : null;
     if (!user || !(await bcrypt.compare(password,user.MatKhau))) {
       flash(req,'Email hoặc mật khẩu không chính xác.','warning'); return res.redirect('/login');
+    }
+    if (Number(user.TrangThai) === 0) {
+      const reason = String(user.LyDoKhoa || '').trim();
+      flash(req,`Tài khoản đã bị khóa.${reason ? ' Lý do: ' + reason : ' Vui lòng liên hệ quản trị viên.'}`,'warning');
+      return res.redirect('/login');
     }
     req.session.regenerate(err => {
       if(err) return next(err);
