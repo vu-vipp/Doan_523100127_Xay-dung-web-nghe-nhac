@@ -12,7 +12,7 @@ module.exports = {
     const [users] = await db.execute('SELECT MaNguoiDung FROM NguoiDung WHERE MaNguoiDung=? LIMIT 1', [userId]);
     if (!users.length) return { status:'missing_user' };
     const plan = await this.plan(planId);
-    if (!plan) return { status:'missing_plan' };
+    if (!plan || Number(plan.Gia) <= 0) return { status:'missing_plan' };
     const [existing] = await db.execute(`SELECT MaDangKy FROM DangKyVIP WHERE MaNguoiDung=?
       AND ((TrangThai='DA_XAC_NHAN' AND NgayBatDau<=NOW() AND NgayKetThuc>NOW())
         OR TrangThai='CHO_XAC_NHAN') LIMIT 1`, [userId]);
