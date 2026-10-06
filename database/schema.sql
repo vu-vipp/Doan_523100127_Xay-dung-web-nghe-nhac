@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS NguoiDung (
   AnhDaiDien VARCHAR(255) NULL,
   VaiTro VARCHAR(20) NOT NULL DEFAULT 'USER',
   TrangThaiVIP BOOLEAN NOT NULL DEFAULT FALSE,
+  TrangThai BOOLEAN NOT NULL DEFAULT TRUE,
+  LyDoKhoa VARCHAR(255) NULL,
   NgayDangKy DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT chk_vaitro CHECK (VaiTro IN ('USER', 'ADMIN'))
 ) ENGINE=InnoDB;
@@ -87,6 +89,12 @@ CREATE TABLE IF NOT EXISTS GoiVIP (
   CONSTRAINT chk_goivip_thoihan CHECK (ThoiHan > 0),
   CONSTRAINT chk_goivip_gia CHECK (Gia >= 0)
 ) ENGINE=InnoDB;
+
+INSERT INTO GoiVIP (TenGoi, ThoiHan, Gia, MoTa)
+SELECT 'Dùng thử VIP 1 ngày', 1, 0, 'VIP dùng thử miễn phí 1 ngày dành cho tài khoản mới.'
+WHERE NOT EXISTS (
+  SELECT 1 FROM GoiVIP WHERE TenGoi='Dùng thử VIP 1 ngày' AND ThoiHan=1 AND Gia=0
+);
 
 CREATE TABLE IF NOT EXISTS DangKyVIP (
   MaDangKy INT AUTO_INCREMENT PRIMARY KEY,
