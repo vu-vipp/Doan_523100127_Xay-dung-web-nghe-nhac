@@ -4,7 +4,7 @@ const SELECT = `SELECT b.*, c.TenCaSi, t.TenTheLoai, a.TenAlbum
  JOIN TheLoai t ON t.MaTheLoai = b.MaTheLoai
  LEFT JOIN Album a ON a.MaAlbum = b.MaAlbum`;
 module.exports = {
-  async list({ search = '', genre = '', type = 'ALL', limit = 60, includeInactive = false } = {}) {
+  async list({ search = '', genre = '', type = 'ALL', limit = 60, offset = 0, includeInactive = false } = {}) {
     let sql = SELECT + ' WHERE 1=1';
     const args = [];
     if (!includeInactive) sql += ' AND b.TrangThai = 1';
@@ -12,8 +12,8 @@ module.exports = {
     if (genre && Number.isSafeInteger(Number(genre)) && Number(genre) > 0) { sql += ' AND b.MaTheLoai = ?'; args.push(Number(genre)); }
     if (type === 'FREE') sql += ' AND b.IsVIP = 0';
     if (type === 'VIP') sql += ' AND b.IsVIP = 1';
-    sql += ' ORDER BY b.MaBaiHat DESC LIMIT ?';
-    args.push(limit);
+    sql += ' ORDER BY b.MaBaiHat DESC LIMIT ? OFFSET ?';
+    args.push(Math.min(Math.max(Number(limit) || 60, 1), 200), Math.max(Number(offset) || 0, 0));
     const [rows] = await db.query(sql, args);
     return rows;
   },
