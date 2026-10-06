@@ -17,6 +17,7 @@
       <div class="sidebar-caption">HỆ THỐNG QUẢN TRỊ</div>
       <nav class="nav-stack">
         <a class="nav-link <%= active==='admin'?'selected':'' %>" href="/admin"><span>⚙</span> Quản trị</a>
+        <a class="nav-link <%= active==='admin-users'?'selected':'' %>" href="/admin/users"><span>♟</span> Người dùng</a>
         <a class="nav-link <%= active==='admin-music'?'selected':'' %>" href="/admin/music"><span>♫</span> Bài hát</a>
       </nav>
     <% } else { %>
@@ -39,7 +40,7 @@
   </aside>
   <div class="content-shell">
     <header class="topbar">
-      <div class="topbar-left"><button class="icon-button mobile-menu" id="menu-toggle" type="button" aria-label="Mở menu">☰</button><a href="<%= adminOnly?'/admin':'/' %>" class="topbar-brand">WAVE<span>.</span></a><span class="topbar-label"><%= adminOnly?(active==='admin-music'?'Thư viện kiểm tra bài hát':'Bảng quản trị WAVE'):'Không gian âm nhạc của bạn' %></span></div>
+      <div class="topbar-left"><button class="icon-button mobile-menu" id="menu-toggle" type="button" aria-label="Mở menu">☰</button><a href="<%= adminOnly?'/admin':'/' %>" class="topbar-brand">WAVE<span>.</span></a><span class="topbar-label"><%= adminOnly?(active==='admin-music'?'Thư viện kiểm tra bài hát':active==='admin-users'?'Quản lý người dùng':'Bảng quản trị WAVE'):'Không gian âm nhạc của bạn' %></span></div>
       <div class="topbar-actions">
         <% if (viewer) { %>
           <% if (activeVIP) { %><span class="vip-chip">✦ VIP</span><% } %>
