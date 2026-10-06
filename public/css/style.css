@@ -41,3 +41,10 @@ body.admin-shell .page-content{min-height:calc(100vh - 180px)}
 .card-demo-visual{min-height:250px;border-radius:19px;background:linear-gradient(135deg,#342048,#171c35 55%,#102f2d);padding:25px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #5a466e;box-shadow:0 25px 60px #0007}.card-demo-visual>span{font-size:24px;font-weight:800}.card-demo-visual>b{color:#d6c1ff;font-size:11px;letter-spacing:1.4px}.card-demo-visual>div{font-size:22px;letter-spacing:2px}.card-demo-visual small{color:#b3acc1}.card-demo-copy{display:flex;flex-direction:column;justify-content:center}.card-demo-copy h2{margin-bottom:8px}.card-demo-copy p{font-size:12px}.card-demo-copy .notice-box{margin-top:9px}
 .payment-footer{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-top:20px;padding-top:18px;border-top:1px solid #29262d}.payment-footer-action{display:flex;align-items:center;gap:14px}.payment-footer-action small{color:#827d89;max-width:230px;text-align:right;font-size:9px}.payment-confirm{background:linear-gradient(125deg,#ffb01a,#ff8a00);color:#211306;box-shadow:0 8px 28px #ff9d2438}
 @media(max-width:820px){.payment-summary,.payment-methods{grid-template-columns:1fr}.payment-panel{grid-template-columns:1fr}.payment-qr-card{min-height:295px}.payment-footer{align-items:stretch;flex-direction:column}.payment-footer-action{align-items:stretch;flex-direction:column}.payment-footer-action small{text-align:left;max-width:none}.payment-confirm{width:100%}}
+
+/* Admin pagination */
+.pagination{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0 2px}
+.pagination .page-number{min-width:34px;height:34px;padding:0 9px;border:1px solid #3b3546;border-radius:10px;display:grid;place-items:center;color:#bdb7c7;background:#17151c;font-size:12px;font-weight:700}
+.pagination .page-number:hover{border-color:#6c607a;color:#fff}
+.pagination .page-number.is-active{border-color:#ffb01a;background:#2a2115;color:#ffbd3f}
+.pagination .is-disabled{opacity:.45;pointer-events:none}
