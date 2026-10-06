@@ -190,7 +190,7 @@ function render(template, data) {
   assert.match(output,/name="playlistId"/);
   const listOutput=render('playlists/detail.ejs',{...common,playlist:{MaPlaylist:3,TenPlaylist:'Nhạc chill'},songs:[]});
   assert.ok(!listOutput.includes('Thêm bài hát vào playlist'));
-  const adminOutput=render('admin/index.ejs',{...common,viewer:{...common.viewer,VaiTro:'ADMIN'},songs:[],pending:[],totalSongs:6,filteredCount:2,filter:'VIP'});
+  const adminOutput=render('admin/index.ejs',{...common,viewer:{...common.viewer,VaiTro:'ADMIN'},songs:[],pending:[],totalSongs:6,filteredCount:2,filter:'VIP',page:1,totalPages:1,pageSize:10});
   assert.match(adminOutput,/Tất cả/);
   assert.match(adminOutput,/Miễn phí/);
   assert.match(adminOutput,/Tối đa 10 bản ghi\/trang/);
