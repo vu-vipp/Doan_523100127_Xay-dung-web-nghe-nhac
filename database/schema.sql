@@ -91,9 +91,9 @@ CREATE TABLE IF NOT EXISTS GoiVIP (
 ) ENGINE=InnoDB;
 
 INSERT INTO GoiVIP (TenGoi, ThoiHan, Gia, MoTa)
-SELECT 'Dùng thử VIP 1 ngày', 1, 0, 'VIP dùng thử miễn phí 1 ngày dành cho tài khoản mới.'
+SELECT 'Trải nghiệm FREE 1 ngày', 1, 0, 'Gói trải nghiệm VIP miễn phí 1 ngày, chỉ dành cho tài khoản chưa từng đăng ký VIP.'
 WHERE NOT EXISTS (
-  SELECT 1 FROM GoiVIP WHERE TenGoi='Dùng thử VIP 1 ngày' AND ThoiHan=1 AND Gia=0
+  SELECT 1 FROM GoiVIP WHERE ThoiHan=1 AND Gia=0
 );
 
 CREATE TABLE IF NOT EXISTS DangKyVIP (
