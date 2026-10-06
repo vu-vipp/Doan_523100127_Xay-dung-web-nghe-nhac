@@ -1,7 +1,32 @@
 const db = require('../config/db');
+
+function isTrial(plan) {
+  return plan && Number(plan.Gia) === 0 && Number(plan.ThoiHan) === 1;
+}
+function isLegacySevenDay(plan) {
+  return plan && plan.TenGoi === 'VIP 7 ngày' && Number(plan.ThoiHan) === 7;
+}
+
 module.exports = {
-  async plans() {
-    const [rows] = await db.execute('SELECT * FROM GoiVIP WHERE Gia > 0 ORDER BY Gia, ThoiHan');
+  async plans(userId = null) {
+    if (!userId) {
+      const [rows] = await db.execute(`SELECT * FROM GoiVIP g
+        WHERE NOT (g.TenGoi='VIP 7 ngày' AND g.ThoiHan=7)
+        ORDER BY g.Gia, g.ThoiHan`);
+      return rows;
+    }
+    const [rows] = await db.execute(`SELECT * FROM GoiVIP g
+      WHERE NOT (g.TenGoi='VIP 7 ngày' AND g.ThoiHan=7)
+        AND (
+          g.Gia > 0
+          OR (
+            g.Gia = 0 AND g.ThoiHan = 1
+            AND NOT EXISTS (
+              SELECT 1 FROM DangKyVIP dv WHERE dv.MaNguoiDung=?
+            )
+          )
+        )
+      ORDER BY g.Gia, g.ThoiHan`, [userId]);
     return rows;
   },
   async plan(planId) {
@@ -12,12 +37,46 @@ module.exports = {
     const [users] = await db.execute('SELECT MaNguoiDung FROM NguoiDung WHERE MaNguoiDung=? LIMIT 1', [userId]);
     if (!users.length) return { status:'missing_user' };
     const plan = await this.plan(planId);
-    if (!plan || Number(plan.Gia) <= 0) return { status:'missing_plan' };
+    if (!plan || isTrial(plan) || isLegacySevenDay(plan)) return { status:'missing_plan' };
     const [existing] = await db.execute(`SELECT MaDangKy FROM DangKyVIP WHERE MaNguoiDung=?
       AND ((TrangThai='DA_XAC_NHAN' AND NgayBatDau<=NOW() AND NgayKetThuc>NOW())
         OR TrangThai='CHO_XAC_NHAN') LIMIT 1`, [userId]);
     if (existing.length) return { status:'existing' };
     return { status:'ready', plan };
+  },
+  async claimTrial(userId, planId) {
+    const conn = await db.getConnection();
+    try {
+      await conn.beginTransaction();
+      const [users] = await conn.execute(
+        'SELECT MaNguoiDung FROM NguoiDung WHERE MaNguoiDung=? AND TrangThai=1 FOR UPDATE',
+        [userId]
+      );
+      if (!users.length) { await conn.rollback(); return 'missing_user'; }
+
+      const [plans] = await conn.execute('SELECT * FROM GoiVIP WHERE MaGoi=? FOR UPDATE', [planId]);
+      const plan = plans[0] || null;
+      if (!isTrial(plan)) { await conn.rollback(); return 'missing_plan'; }
+
+      // Mỗi tài khoản chỉ được thấy/nhận gói trải nghiệm nếu CHƯA TỪNG có bất kỳ đăng ký VIP nào.
+      const [history] = await conn.execute(
+        'SELECT MaDangKy FROM DangKyVIP WHERE MaNguoiDung=? LIMIT 1',
+        [userId]
+      );
+      if (history.length) { await conn.rollback(); return 'ineligible'; }
+
+      await conn.execute(`INSERT INTO DangKyVIP
+        (MaNguoiDung,MaGoi,NgayBatDau,NgayKetThuc,TrangThai)
+        VALUES (?,?,NOW(),DATE_ADD(NOW(),INTERVAL 1 DAY),'DA_XAC_NHAN')`, [userId,planId]);
+      await conn.execute('UPDATE NguoiDung SET TrangThaiVIP=1 WHERE MaNguoiDung=?', [userId]);
+      await conn.commit();
+      return 'activated';
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
   },
   async active(userId) {
     const [rows] = await db.execute(`SELECT dv.*, g.TenGoi FROM DangKyVIP dv
@@ -36,18 +95,18 @@ module.exports = {
     const conn = await db.getConnection();
     try {
       await conn.beginTransaction();
-      // Serialize competing requests by the same user through NguoiDung lock.
       const [users] = await conn.execute('SELECT MaNguoiDung FROM NguoiDung WHERE MaNguoiDung=? FOR UPDATE', [userId]);
       if (!users.length) { await conn.rollback(); return 'missing_user'; }
       const [plans] = await conn.execute('SELECT * FROM GoiVIP WHERE MaGoi=?', [planId]);
-      if (!plans.length) { await conn.rollback(); return 'missing_plan'; }
+      const plan = plans[0] || null;
+      if (!plan || isTrial(plan) || isLegacySevenDay(plan)) { await conn.rollback(); return 'missing_plan'; }
       const [active] = await conn.execute(`SELECT MaDangKy FROM DangKyVIP WHERE MaNguoiDung=?
         AND ((TrangThai='DA_XAC_NHAN' AND NgayBatDau<=NOW() AND NgayKetThuc>NOW())
           OR TrangThai='CHO_XAC_NHAN') LIMIT 1`, [userId]);
       if (active.length) { await conn.rollback(); return 'existing'; }
       await conn.execute(`INSERT INTO DangKyVIP
         (MaNguoiDung,MaGoi,NgayBatDau,NgayKetThuc,TrangThai)
-        VALUES (?,?,NOW(),DATE_ADD(NOW(),INTERVAL ? DAY),'CHO_XAC_NHAN')`, [userId,planId,plans[0].ThoiHan]);
+        VALUES (?,?,NOW(),DATE_ADD(NOW(),INTERVAL ? DAY),'CHO_XAC_NHAN')`, [userId,planId,plan.ThoiHan]);
       await conn.commit();
       return 'created';
     } catch (err) { await conn.rollback(); throw err; }
