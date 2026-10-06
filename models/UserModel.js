@@ -1,6 +1,4 @@
 const db = require('../config/db');
-const TRIAL_PLAN_NAME = 'Dùng thử VIP 1 ngày';
-
 module.exports = {
   async findByEmail(email) {
     const [rows] = await db.execute('SELECT * FROM NguoiDung WHERE Email = ? LIMIT 1', [email]);
@@ -13,37 +11,12 @@ module.exports = {
     return rows[0] || null;
   },
   async create({ name, email, hash }) {
-    const conn = await db.getConnection();
-    try {
-      await conn.beginTransaction();
-      const [result] = await conn.execute(
-        'INSERT INTO NguoiDung (HoTen, Email, MatKhau, VaiTro, TrangThaiVIP, TrangThai) VALUES (?, ?, ?, ?, 1, 1)',
-        [name, email, hash, 'USER']
-      );
-      const userId = result.insertId;
-      let [plans] = await conn.execute(
-        'SELECT MaGoi FROM GoiVIP WHERE TenGoi=? AND ThoiHan=1 AND Gia=0 ORDER BY MaGoi LIMIT 1',
-        [TRIAL_PLAN_NAME]
-      );
-      let planId = plans[0]?.MaGoi;
-      if (!planId) {
-        const [planResult] = await conn.execute(
-          'INSERT INTO GoiVIP (TenGoi, ThoiHan, Gia, MoTa) VALUES (?,1,0,?)',
-          [TRIAL_PLAN_NAME, 'VIP dùng thử miễn phí 1 ngày dành cho tài khoản mới.']
-        );
-        planId = planResult.insertId;
-      }
-      await conn.execute(`INSERT INTO DangKyVIP
-        (MaNguoiDung,MaGoi,NgayBatDau,NgayKetThuc,TrangThai)
-        VALUES (?,?,NOW(),DATE_ADD(NOW(),INTERVAL 1 DAY),'DA_XAC_NHAN')`, [userId, planId]);
-      await conn.commit();
-      return userId;
-    } catch (err) {
-      await conn.rollback();
-      throw err;
-    } finally {
-      conn.release();
-    }
+    cons  async create({ name, email, hash }) {
+    const [result] = await db.execute(
+      'INSERT INTO NguoiDung (HoTen, Email, MatKhau, VaiTro, TrangThaiVIP, TrangThai) VALUES (?, ?, ?, ?, 0, 1)',
+      [name, email, hash, 'USER']
+    );
+    return result.insertId;
   },
   async syncVIP(id, active) {
     await db.execute('UPDATE NguoiDung SET TrangThaiVIP = ? WHERE MaNguoiDung = ?', [active ? 1 : 0, id]);
