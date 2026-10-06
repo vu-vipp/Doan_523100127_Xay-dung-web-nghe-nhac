@@ -45,7 +45,8 @@ function render(template, data) {
     else if (choice === 'FREE') assert.match(sql,/b\.IsVIP = 0/);
     else { assert.ok(!sql.includes('b.IsVIP = 1')); assert.ok(!sql.includes('b.IsVIP = 0')); }
     assert.match(sql,/b\.TrangThai = 1/);
-    assert.equal(args.at(-1), 200);
+    assert.equal(args.at(-2), 200);
+    assert.equal(args.at(-1), 0);
   }
   let countQuery;
   fake.execute = async (query, args) => { countQuery = { query, args }; return [[{total: 17}]]; };
@@ -94,6 +95,8 @@ function render(template, data) {
   assert.equal(rendered.props.filter,'VIP');
   assert.equal(rendered.props.filteredCount,2);
   assert.equal(rendered.props.totalSongs,6);
+  assert.equal(rendered.props.page,1);
+  assert.equal(rendered.props.pageSize,10);
   await AdminController.dashboard({query:{type:'UNTRUSTED'}},response,next);
   assert.equal(rendered.props.filter,'ALL');
   const prevGenres=Song.genres;
@@ -190,6 +193,7 @@ function render(template, data) {
   const adminOutput=render('admin/index.ejs',{...common,viewer:{...common.viewer,VaiTro:'ADMIN'},songs:[],pending:[],totalSongs:6,filteredCount:2,filter:'VIP'});
   assert.match(adminOutput,/Tất cả/);
   assert.match(adminOutput,/Miễn phí/);
+  assert.match(adminOutput,/Tối đa 10 bản ghi\/trang/);
   assert.ok(!adminOutput.includes('href="/songs" class="nav-link"'));
   assert.ok(adminOutput.includes('id="audio-player"'));
   assert.ok(adminOutput.includes('href="/admin/music"'));
