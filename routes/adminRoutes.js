@@ -6,6 +6,7 @@ const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:25*1024*102
 const songFiles=upload.fields([{name:'audioFile',maxCount:1},{name:'coverFile',maxCount:1}]);
 r.use('/admin',requireAdmin);
 r.get('/admin',c.dashboard);
+r.get('/admin/users',c.users);
 r.get('/admin/music',c.musicLibrary);
 r.get('/admin/music/:id',c.musicPreview);
 r.get('/admin/songs/new',c.newForm);
@@ -14,5 +15,7 @@ r.get('/admin/songs/:id/edit',c.editForm);
 r.post('/admin/songs/:id/update',songFiles,csrfGuard,c.update);
 r.post('/admin/songs/:id/delete',csrfGuard,c.remove);
 r.post('/admin/songs/:id/restore',csrfGuard,c.restore);
+r.post('/admin/users/:id/lock',csrfGuard,c.lockUser);
+r.post('/admin/users/:id/unlock',csrfGuard,c.unlockUser);
 r.post('/admin/vip/:id/:action',csrfGuard,c.decideVIP);
 module.exports=r;

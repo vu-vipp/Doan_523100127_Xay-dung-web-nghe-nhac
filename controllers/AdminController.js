@@ -3,6 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const Song = require('../models/SongModel');
 const VIP = require('../models/VIPModel');
+const User = require('../models/UserModel');
 const { flash } = require('../middleware/auth');
 const { inspectAudio } = require('../utils/audioMetadata');
 
@@ -57,6 +58,19 @@ exports.dashboard = async (req,res,next) => {
       Song.list({type:filter,limit:200,includeInactive:true}), VIP.pending(), Song.count('ALL',true), Song.count(filter,true)
     ]);
     res.render('admin/index',{title:'Quản trị hệ thống',songs,pending,totalSongs,filteredCount,filter});
+  } catch(err){next(err);}
+};
+
+exports.users=async(req,res,next)=>{
+  try {
+    const status=['ACTIVE','LOCKED'].includes(req.query.status)?req.query.status:'ALL';
+    const search=String(req.query.q||'').trim().slice(0,100);
+    const [users,totalUsers,filteredUsers]=await Promise.all([
+      User.listAdmin({search,status,limit:200}),
+      User.countAdmin(),
+      User.countAdmin({search,status})
+    ]);
+    res.render('admin/users',{title:'Quản lý người dùng',users,totalUsers,filteredUsers,search,status});
   } catch(err){next(err);}
 };
 
@@ -167,5 +181,29 @@ exports.decideVIP=async(req,res,next)=>{
     const ok=await VIP.decide(registrationId,action);
     flash(req,ok?(action==='approve'?'Đã xác nhận và kích hoạt VIP.':'Đã từ chối yêu cầu VIP.'):'Không thể xử lý yêu cầu này.',ok?'success':'warning');
     res.redirect('/admin#vip');
+  } catch(err){next(err);}
+};
+
+exports.lockUser=async(req,res,next)=>{
+  try {
+    const userId=id(req.params.id);
+    const reason=String(req.body.reason||'').trim().replace(/\s+/g,' ');
+    if(!userId) return res.sendStatus(400);
+    if(reason.length<3 || reason.length>255) {
+      flash(req,'Lý do khóa phải từ 3 đến 255 ký tự.','warning');
+      return res.redirect('/admin/users');
+    }
+    const changed=await User.lock(userId,reason);
+    flash(req,changed?'Đã khóa tài khoản người dùng và lưu lý do.':'Không thể khóa tài khoản này.',changed?'success':'warning');
+    res.redirect('/admin/users');
+  } catch(err){next(err);}
+};
+exports.unlockUser=async(req,res,next)=>{
+  try {
+    const userId=id(req.params.id);
+    if(!userId) return res.sendStatus(400);
+    const changed=await User.unlock(userId);
+    flash(req,changed?'Đã mở khóa tài khoản người dùng.':'Không thể mở khóa tài khoản này.',changed?'success':'warning');
+    res.redirect('/admin/users');
   } catch(err){next(err);}
 };

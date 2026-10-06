@@ -21,4 +21,4 @@ const sql=fs.readFileSync(path.join(root,'database/schema.sql'),'utf8');
 const names=[...sql.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map(m=>m[1]);
 const expected=['NguoiDung','CaSi','TheLoai','Album','BaiHat','Playlist','ChiTietPlaylist','GoiVIP','DangKyVIP'];
 if(JSON.stringify(names)!==JSON.stringify(expected))throw new Error('Danh sách bảng sai so với thiết kế CP3.');
-console.log('PASS: schema.sql chứa chính xác 10 bảng có tên khớp CP3.');
+console.log('PASS: schema.sql chứa chính xác 9 bảng có tên khớp CP3.');
