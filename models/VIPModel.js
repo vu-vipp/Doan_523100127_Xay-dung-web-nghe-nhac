@@ -12,6 +12,13 @@ module.exports = {
     if (!userId) {
       const [rows] = await db.execute(`SELECT * FROM GoiVIP g
         WHERE NOT (g.TenGoi='VIP 7 ngày' AND g.ThoiHan=7)
+          AND (
+            g.Gia > 0
+            OR (
+              g.Gia = 0 AND g.ThoiHan = 1
+              AND g.MaGoi = (SELECT MIN(g2.MaGoi) FROM GoiVIP g2 WHERE g2.Gia=0 AND g2.ThoiHan=1)
+            )
+          )
         ORDER BY g.Gia, g.ThoiHan`);
       return rows;
     }
@@ -21,6 +28,7 @@ module.exports = {
           g.Gia > 0
           OR (
             g.Gia = 0 AND g.ThoiHan = 1
+            AND g.MaGoi = (SELECT MIN(g2.MaGoi) FROM GoiVIP g2 WHERE g2.Gia=0 AND g2.ThoiHan=1)
             AND NOT EXISTS (
               SELECT 1 FROM DangKyVIP dv WHERE dv.MaNguoiDung=?
             )
