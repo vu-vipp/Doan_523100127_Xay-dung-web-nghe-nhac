@@ -1,0 +1,18 @@
+const r=require('express').Router();
+const multer=require('multer');
+const c=require('../controllers/AdminController');
+const {requireAdmin,csrfGuard}=require('../middleware/auth');
+const upload=multer({storage:multer.memoryStorage(),limits:{fileSize:25*1024*1024,files:2}});
+const songFiles=upload.fields([{name:'audioFile',maxCount:1},{name:'coverFile',maxCount:1}]);
+r.use('/admin',requireAdmin);
+r.get('/admin',c.dashboard);
+r.get('/admin/music',c.musicLibrary);
+r.get('/admin/music/:id',c.musicPreview);
+r.get('/admin/songs/new',c.newForm);
+r.post('/admin/songs',songFiles,csrfGuard,c.create);
+r.get('/admin/songs/:id/edit',c.editForm);
+r.post('/admin/songs/:id/update',songFiles,csrfGuard,c.update);
+r.post('/admin/songs/:id/delete',csrfGuard,c.remove);
+r.post('/admin/songs/:id/restore',csrfGuard,c.restore);
+r.post('/admin/vip/:id/:action',csrfGuard,c.decideVIP);
+module.exports=r;

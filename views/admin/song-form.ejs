@@ -1,0 +1,48 @@
+<%- include('../partials/header',{title,active:'admin'}) %>
+<a href="/admin" class="back-link">← Quay lại quản trị</a>
+<section class="page-heading">
+  <span class="eyebrow">QUẢN TRỊ NỘI DUNG</span>
+  <h1><%= song?'Chỉnh sửa bài hát':'Thêm bài hát mới' %></h1>
+  <p>Upload file nhạc, ảnh cover và lưu thông tin vào bảng BaiHat.</p>
+</section>
+<div class="panel form-panel">
+<form method="post" action="<%= song?'/admin/songs/'+song.MaBaiHat+'/update':'/admin/songs' %>" enctype="multipart/form-data" class="form-stack">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="form-grid">
+    <label>Tên bài hát *
+      <input name="name" required maxlength="200" value="<%= song?.TenBaiHat||'' %>" placeholder="Nhập tên bài hát">
+    </label>
+    <label>Ca sĩ *
+      <select name="artistId" required><option value="">Chọn ca sĩ</option><% artists.forEach(a=>{ %><option value="<%= a.MaCaSi %>" <%= song?.MaCaSi===a.MaCaSi?'selected':'' %>><%= a.TenCaSi %></option><% }) %></select>
+    </label>
+    <label>Thể loại *
+      <select name="genreId" required><option value="">Chọn thể loại</option><% genres.forEach(g=>{ %><option value="<%= g.MaTheLoai %>" <%= song?.MaTheLoai===g.MaTheLoai?'selected':'' %>><%= g.TenTheLoai %></option><% }) %></select>
+    </label>
+    <label>Album (tùy chọn)
+      <select name="albumId"><option value="">Không thuộc album</option><% albums.forEach(a=>{ %><option value="<%= a.MaAlbum %>" <%= song?.MaAlbum===a.MaAlbum?'selected':'' %>><%= a.TenAlbum %> – <%= a.TenCaSi %></option><% }) %></select>
+    </label>
+    <label>Phân loại quyền *
+      <select name="isVIP" required>
+        <option value="0" <%= !song?.IsVIP?'selected':'' %>>FREE – Miễn phí</option>
+        <option value="1" <%= song?.IsVIP?'selected':'' %>>VIP – Yêu cầu gói</option>
+      </select>
+    </label>
+    <label>Thời lượng
+      <input type="text" value="<%= song?formatDuration(song.ThoiLuong):'Tự động lấy khi upload' %>" readonly>
+      <small>Hệ thống tự đọc thời lượng từ file nhạc.</small>
+    </label>
+  </div>
+  <label>Upload ảnh cover <span class="muted">(tùy chọn)</span>
+    <input type="file" name="coverFile" accept=".jpg,.png,image/jpeg,image/png">
+    <small>Chỉ .jpg hoặc .png · tối đa 5 MB. Để trống khi sửa nếu muốn giữ ảnh cũ.</small>
+  </label>
+  <% if(song?.AnhBia){ %><p class="muted">Ảnh hiện tại: <code><%= song.AnhBia %></code></p><% } %>
+  <label>Upload file nhạc <%= song?'(tùy chọn khi sửa)':'*' %>
+    <input type="file" name="audioFile" accept=".mp3,.aac,audio/mpeg,audio/aac" <%= song?'':'required' %>>
+    <small>Chỉ MP3 hoặc AAC · tối đa 25 MB. Hệ thống kiểm tra định dạng và tự lấy thời lượng.</small>
+  </label>
+  <% if(song){ %><p class="muted">Tệp hiện tại: <code><%= song.DuongDanAudio %></code> · <%= formatDuration(song.ThoiLuong) %></p><% } %>
+  <div class="button-row"><button type="submit" class="btn btn-primary"><%= song?'Lưu thay đổi':'Thêm bài hát' %> →</button><a href="/admin" class="btn btn-outline">Hủy</a></div>
+</form>
+</div>
+<%- include('../partials/footer') %>

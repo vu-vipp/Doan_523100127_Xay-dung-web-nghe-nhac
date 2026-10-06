@@ -1,0 +1,12 @@
+<% const listeningAdmin = typeof adminLibrary !== 'undefined' && adminLibrary; %>
+<%- include('../partials/header',{title,active:listeningAdmin?'admin-music':'songs'}) %>
+<section class="page-heading"><div><span class="eyebrow"><%= listeningAdmin?'KIỂM TRA ÂM THANH · ADMIN':'KHÁM PHÁ ÂM NHẠC' %></span><h1><%= listeningAdmin?'Bài hát – Nghe thử':'Thư viện bài hát' %></h1><p><%= listeningAdmin?'Nghe thử bài hát FREE và VIP sau khi tải lên. Có thể chuyển sang Quản trị mà không ngắt nhạc.':'Tìm theo tên bài hát, ca sĩ hoặc lọc theo thể loại yêu thích.' %></p></div></section>
+<form class="filter-bar" method="get" action="<%= listeningAdmin?'/admin/music':'/songs' %>">
+  <div class="search-field"><span>⌕</span><input type="search" name="q" value="<%= search %>" placeholder="Nhập tên bài hát hoặc ca sĩ..."></div>
+  <select name="genre" aria-label="Thể loại"><option value="">Tất cả thể loại</option><% genres.forEach(g=>{ %><option value="<%= g.MaTheLoai %>" <%= String(g.MaTheLoai)===genre?'selected':'' %>><%= g.TenTheLoai %></option><% }) %></select>
+  <% if(listeningAdmin){ %><select name="type" aria-label="Loại bài hát"><option value="ALL" <%= filter==='ALL'?'selected':'' %>>Tất cả bài hát</option><option value="VIP" <%= filter==='VIP'?'selected':'' %>>Bài hát VIP</option><option value="FREE" <%= filter==='FREE'?'selected':'' %>>Bài hát miễn phí</option></select><% } %>
+  <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+</form>
+<div class="section-heading"><h2><%= songs.length %> bài hát được tìm thấy</h2><% if(listeningAdmin){ %><a href="/admin" class="btn btn-outline btn-small">⚙ Quay lại quản trị</a><% } %></div>
+<div class="song-list"><% songs.forEach(song=>{ %><%- include('../partials/song-row',{song,detailUrl:listeningAdmin?'/admin/music/'+song.MaBaiHat:'/songs/'+song.MaBaiHat}) %><% }) %><% if(!songs.length){ %><div class="empty">Không tìm thấy bài hát phù hợp. Thử từ khóa khác nhé!</div><% } %></div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,8 @@
+node_modules/
+.env
+storage/audio/upload-*
+.DS_Store
+*.log
+
+public/uploads/covers/*
+!public/uploads/covers/.gitkeep

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title><%= title %> · WAVE Music</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script defer src="/static/js/app.js"></script>
+</head>
+<% const adminOnly = !!(viewer && viewer.VaiTro === 'ADMIN'); %>
+<body class="<%= adminOnly ? 'admin-shell' : '' %>" data-logged-in="<%= !!viewer %>" data-vip="<%= !!activeVIP || adminOnly %>">
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="logo" href="<%= adminOnly?'/admin':'/' %>"><span class="logo-icon">◉</span>WAVE<span class="logo-dot">.</span></a>
+    <% if(adminOnly){ %>
+      <div class="sidebar-caption">HỆ THỐNG QUẢN TRỊ</div>
+      <nav class="nav-stack">
+        <a class="nav-link <%= active==='admin'?'selected':'' %>" href="/admin"><span>⚙</span> Quản trị</a>
+        <a class="nav-link <%= active==='admin-music'?'selected':'' %>" href="/admin/music"><span>♫</span> Bài hát</a>
+      </nav>
+    <% } else { %>
+      <div class="sidebar-caption">KHÁM PHÁ</div>
+      <nav class="nav-stack">
+        <a class="nav-link <%= active==='home'?'selected':'' %>" href="/"><span>⌂</span> Trang chủ</a>
+        <a class="nav-link <%= active==='songs'?'selected':'' %>" href="/songs"><span>♫</span> Thư viện nhạc</a>
+        <a class="nav-link <%= active==='vip'?'selected':'' %>" href="/vip"><span>✦</span> WAVE VIP</a>
+      </nav>
+      <div class="sidebar-caption">THƯ VIỆN CỦA BẠN</div>
+      <nav class="nav-stack">
+        <a class="nav-link <%= active==='playlists'?'selected':'' %>" href="/playlists"><span>▤</span> Playlist cá nhân</a>
+      </nav>
+    <% } %>
+    <div class="sidebar-bottom">
+      <div class="sidebar-orb">♪</div>
+      <p>Âm nhạc cho mọi khoảnh khắc.</p>
+      <small>Website đồ án · MVC / MySQL</small>
+    </div>
+  </aside>
+  <div class="content-shell">
+    <header class="topbar">
+      <div class="topbar-left"><button class="icon-button mobile-menu" id="menu-toggle" type="button" aria-label="Mở menu">☰</button><a href="<%= adminOnly?'/admin':'/' %>" class="topbar-brand">WAVE<span>.</span></a><span class="topbar-label"><%= adminOnly?(active==='admin-music'?'Thư viện kiểm tra bài hát':'Bảng quản trị WAVE'):'Không gian âm nhạc của bạn' %></span></div>
+      <div class="topbar-actions">
+        <% if (viewer) { %>
+          <% if (activeVIP) { %><span class="vip-chip">✦ VIP</span><% } %>
+          <span class="user-badge">● <%= viewer.HoTen %></span>
+          <form action="/logout" method="post" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-outline btn-small" type="submit">Đăng xuất</button></form>
+        <% } else { %>
+          <a href="/login" class="btn btn-ghost btn-small">Đăng nhập</a>
+          <a href="/register" class="btn btn-primary btn-small">Đăng ký</a>
+        <% } %>
+      </div>
+    </header>
+    <main class="page-content">
+      <% if(flash) { %><div class="toast <%= flash.type==='success'?'toast-success':'toast-warning' %>" role="status"><span><%= flash.type==='success'?'✓':'!' %></span> <%= flash.message %></div><% } %>

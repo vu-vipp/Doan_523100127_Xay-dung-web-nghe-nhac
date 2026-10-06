@@ -1,0 +1,9 @@
+<div class="song-row">
+  <button class="song-art play-trigger" type="button" aria-label="Phát <%= song.TenBaiHat %>" data-play="<%= song.MaBaiHat %>" data-title="<%= song.TenBaiHat %>" data-artist="<%= song.TenCaSi %>" data-cover="<%= song.AnhBia || '' %>" data-vip="<%= song.IsVIP?'VIP':'FREE' %>">
+    <% if(song.AnhBia){ %><img src="<%= song.AnhBia %>" alt="" loading="lazy"><% }else{ %>♫<% } %><span class="art-play">▶</span>
+  </button>
+  <div class="song-info"><a class="song-title" href="<%= typeof detailUrl !== 'undefined' ? detailUrl : '/songs/'+song.MaBaiHat %>"><%= song.TenBaiHat %></a><span class="song-subtitle"><%= song.TenCaSi %> · <%= song.TenTheLoai %></span></div>
+  <div class="song-meta"><% if(song.IsVIP){ %><span class="vip-chip">✦ VIP</span><% }else{ %><span class="free-chip">FREE</span><% } %></div>
+  <span class="song-duration"><%= formatDuration(song.ThoiLuong) %></span>
+  <button type="button" class="round-play play-trigger" title="Phát bài hát" data-play="<%= song.MaBaiHat %>" data-title="<%= song.TenBaiHat %>" data-artist="<%= song.TenCaSi %>" data-cover="<%= song.AnhBia || '' %>" data-vip="<%= song.IsVIP?'VIP':'FREE' %>">▶</button>
+</div>

@@ -1,0 +1,70 @@
+<%- include('../partials/header',{title,active:'vip'}) %>
+<section class="payment-shell" data-payment-page>
+  <div class="payment-topline">
+    <div>
+      <span class="eyebrow">BƯỚC 2 · THANH TOÁN MÔ PHỎNG</span>
+      <h1>Cổng thanh toán WAVE VIP</h1>
+      <p>Chọn phương thức, kiểm tra thông tin và xác nhận. Đây là màn hình phục vụ đồ án, không phát sinh giao dịch tiền thật.</p>
+    </div>
+    <a class="payment-close" href="/vip" aria-label="Đóng thanh toán">×</a>
+  </div>
+
+  <div class="payment-summary">
+    <div><span>Gói đã chọn</span><strong><%= plan.TenGoi %></strong></div>
+    <div><span>Thời hạn</span><strong><%= plan.ThoiHan %> ngày</strong></div>
+    <div class="payment-total"><span>Số tiền mô phỏng</span><strong><%= formatPrice(plan.Gia) %></strong></div>
+  </div>
+
+  <form method="post" action="/vip/payment/confirm" class="payment-form" id="vip-payment-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="payment-methods" role="radiogroup" aria-label="Phương thức thanh toán">
+      <label class="payment-method is-selected">
+        <input type="radio" name="paymentMethod" value="BANK_TRANSFER" checked>
+        <span class="payment-method-icon">⌁</span>
+        <span><strong>Chuyển khoản ngân hàng</strong><small>QR mô phỏng · xác nhận thủ công</small></span>
+        <b>✓</b>
+      </label>
+      <label class="payment-method">
+        <input type="radio" name="paymentMethod" value="BANK_CARD">
+        <span class="payment-method-icon">▣</span>
+        <span><strong>Thẻ ngân hàng</strong><small>ATM / Visa / Mastercard ·</small></span>
+        <b>✓</b>
+      </label>
+    </div>
+
+    <div class="payment-panel" data-payment-panel="BANK_TRANSFER">
+      <div class="payment-qr-card">
+        <span class="payment-demo-badge">QR </span>
+        <img src="/static/images/qr.jpg" alt="Mã QR thanh toán WAVE VIP">
+        
+      </div>
+      <div class="payment-bank-details">
+        <div class="payment-detail-row"><span>Ngân hàng MBBank</span><strong></strong></div>
+        <div class="payment-detail-row"><span>Số tài khoản </span><strong>6263388886</strong><button type="button" class="copy-payment" data-copy="<%= demoBank.account %>">Sao chép</button></div>
+        <div class="payment-detail-row"><span>Chủ tài khoản</span><strong>NGUYEN HUY VU</strong></div>
+        <div class="payment-detail-row"><span>Số tiền</span><strong class="payment-accent"><%= formatPrice(plan.Gia) %></strong></div>
+        <div class="payment-detail-row"><span>Nội dung chuyển khoản</span><strong class="payment-accent"><%= paymentRef %></strong><button type="button" class="copy-payment" data-copy="<%= paymentRef %>">Sao chép</button></div>
+      </div>
+    </div>
+
+    <div class="payment-panel" data-payment-panel="BANK_CARD" hidden>
+      <div class="card-demo-visual">
+        <span>WAVE</span><b>DEMO CARD</b><div>•••• &nbsp;•••• &nbsp;•••• &nbsp;2026</div><small>Không nhập thông tin thẻ thật</small>
+      </div>
+      <div class="card-demo-copy">
+        <h2>Thanh toán thẻ mô phỏng</h2>
+        <p>Trong phạm vi đồ án, hệ thống không kết nối cổng ngân hàng và không thu thập số thẻ, CVV hoặc OTP. Bấm xác nhận để mô phỏng giao dịch thành công và gửi yêu cầu cho Admin duyệt.</p>
+        <div class="notice-box">ⓘ Không nhập dữ liệu ngân hàng thật vào hệ thống demo.</div>
+      </div>
+    </div>
+
+    <div class="payment-footer">
+      <a href="/vip" class="btn btn-outline">← Quay lại chọn gói</a>
+      <div class="payment-footer-action">
+        <small>Admin vẫn cần duyệt trước khi quyền VIP có hiệu lực.</small>
+        <button type="submit" class="btn btn-primary payment-confirm">✓ Xác nhận đã thanh toán & hoàn tất</button>
+      </div>
+    </div>
+  </form>
+</section>
+<%- include('../partials/footer') %>

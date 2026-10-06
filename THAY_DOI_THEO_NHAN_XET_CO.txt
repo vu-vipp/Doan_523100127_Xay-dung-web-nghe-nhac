@@ -1,0 +1,41 @@
+CAP NHAT WEB THEO NHAN XET GIANG VIEN - QUAN LY BAI HAT ADMIN
+
+1. CSDL BaiHat
+- LoaiBaiHat -> IsVIP BOOLEAN: 0=FREE, 1=VIP.
+- Them TrangThai BOOLEAN: 1=hoat dong, 0=khoa/an.
+- Giu DuongDanAudio va ThoiLuong.
+- Database moi: database/schema.sql da cap nhat.
+- Database cu: sao luu va chay database/migrate_admin_feedback.sql MOT LAN.
+
+2. Upload bai hat
+- File nhac moi chi nhan .mp3/.aac.
+- Server kiem tra noi dung file, khong chi kiem tra duoi file.
+- ThoiLuong duoc tu dong doc tu file khi upload, khong nhap tay.
+- Anh cover tuy chon chi nhan .jpg/.png, luu tai public/uploads/covers.
+
+3. Phan quyen
+- Form Admin luu IsVIP.
+- IsVIP=0: FREE; IsVIP=1: VIP.
+- Stream VIP van kiem tra quyen o Backend; Admin duoc nghe thu.
+
+4. Xoa mem
+- Nut Xoa khong DELETE ban ghi BaiHat.
+- Chi UPDATE TrangThai=0.
+- Bai da an khong hien thi cho nguoi dung, khong stream va khong them vao playlist.
+- Admin van thay ban ghi da an trong bang quan tri de minh chung Soft Delete.
+
+5. Kiem tra
+- npm run check: PASS cu phap Node.js va schema 10 bang.
+- npm run test:updates: PASS IsVIP/TrangThai, Soft Delete, playlist, VIP stream va giao dien chinh.
+- Bo doc thoi luong da duoc test voi file MP3 va AAC mau 2 giay.
+
+- Bổ sung Mở khóa/khôi phục bài hát đã Soft Delete (TrangThai=1).
+- Loại bỏ bảng YeuThich khỏi phạm vi hiện tại vì chưa có chức năng UI tương ứng.
+
+[CAP NHAT VIP PAYMENT DEMO]
+- Khi nguoi dung bam Dang ky goi VIP, he thong khong tao yeu cau ngay ma chuyen sang /vip/payment.
+- Them giao dien thanh toan mo phong theo phong cach WAVE: chuyen khoan QR demo va the ngan hang demo.
+- Khong thu thap so the/CVV/OTP va khong dung tai khoan ngan hang that.
+- Chi sau khi bam Xac nhan da thanh toan, he thong moi tao DangKyVIP trang thai CHO_XAC_NHAN.
+- Admin nhin thay yeu cau da bao thanh toan va co the Xac nhan/Tu choi.
+- Them anh QR demo tai public/images/vip-payment-demo-qr.png.

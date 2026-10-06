@@ -1,0 +1,12 @@
+const r=require('express').Router();
+const c=require('../controllers/PlaylistController');
+const {requireAuth,csrfGuard}=require('../middleware/auth');
+r.use(requireAuth);
+r.get('/playlists',c.list);
+r.post('/playlists',csrfGuard,c.create);
+r.get('/playlists/:id',c.detail);
+r.post('/playlists/:id/rename',csrfGuard,c.rename);
+r.post('/playlists/:id/delete',csrfGuard,c.remove);
+r.post('/songs/:id/playlist',csrfGuard,c.addFromSong);
+r.post('/playlists/:id/remove-song',csrfGuard,c.removeSong);
+module.exports=r;

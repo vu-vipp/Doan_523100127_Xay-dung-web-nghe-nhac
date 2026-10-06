@@ -1,0 +1,11 @@
+<%- include('partials/header',{title,active:'home'}) %>
+<section class="hero">
+  <div class="hero-light"></div>
+  <div class="hero-body"><span class="eyebrow">◉ WAVE MUSIC · NGHE NHẠC TRỰC TUYẾN</span><h1>Chạm vào<br><em>giai điệu của bạn.</em></h1><p>Khám phá bài hát mới, tạo playlist riêng và mở khóa trải nghiệm WAVE VIP.</p><div class="button-row"><a href="/songs" class="btn btn-primary">▶ Khám phá bài hát</a><a href="/vip" class="btn btn-outline">✦ Tìm hiểu VIP</a></div></div>
+  <div class="hero-visual"><div class="vinyl-outer"><div class="vinyl-groove"><div class="vinyl-center">♪</div></div></div><div class="visual-note note-one">♫</div><div class="visual-note note-two">♪</div></div>
+</section>
+<div class="stat-strip"><div><strong><%= latest.length %>+</strong><span>Bài hát mới</span></div><div><strong><%= genres.length %></strong><span>Thể loại nhạc</span></div><div><strong>24/7</strong><span>Giai điệu bên bạn</span></div></div>
+<section class="section"><div class="section-heading"><div><span class="eyebrow">CẬP NHẬT LIÊN TỤC</span><h2>Nhạc mới lên sóng <span class="heading-emoji">✦</span></h2></div><a class="text-link" href="/songs">Xem tất cả →</a></div><div class="song-list"><% latest.forEach(song => { %><%- include('partials/song-row',{song}) %><% }) %><% if (!latest.length) { %><p class="empty">Chưa có bài hát. Chạy <code>npm.cmd run db:seed</code> để thêm dữ liệu mẫu.</p><% } %></div></section>
+<section class="section"><div class="section-heading"><div><span class="eyebrow">CHỌN THEO TÂM TRẠNG</span><h2>Khám phá thể loại</h2></div></div><div class="genre-grid"><% genres.forEach((g,i)=>{ %><a class="genre-tile genre-<%= i%4 %>" href="/songs?genre=<%= g.MaTheLoai %>"><span>♫</span><strong><%= g.TenTheLoai %></strong><small>Khám phá →</small></a><% }) %></div></section>
+<section class="vip-banner"><div><span class="eyebrow">✦ CHỈ DÀNH CHO THÀNH VIÊN</span><h2>Âm nhạc không giới hạn cùng WAVE VIP</h2><p>Mở khóa bài hát VIP qua cơ chế đăng ký và xác nhận trong đồ án.</p></div><a href="/vip" class="btn btn-light">Khám phá VIP →</a></section>
+<%- include('partials/footer') %>

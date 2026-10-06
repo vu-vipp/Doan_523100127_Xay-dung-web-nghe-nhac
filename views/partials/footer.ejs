@@ -1,0 +1,19 @@
+    </main>
+  </div>
+</div>
+<% /* The player lives outside <main> so it survives same-document navigation.
+       Administrators need it to preview FREE and VIP songs. */ %>
+<div class="player" id="player">
+  <div class="player-track">
+    <div class="player-cover" id="player-cover">♫</div>
+    <div class="player-track-copy"><strong id="player-title">Chọn một bài hát</strong><span id="player-artist">WAVE Music</span></div>
+  </div>
+  <div class="player-center">
+    <div class="player-controls"><button id="player-prev" type="button" aria-label="Bài trước">⏮</button><button id="player-toggle" type="button" class="player-main" aria-label="Phát hoặc tạm dừng">▶</button><button id="player-next" type="button" aria-label="Bài tiếp">⏭</button></div>
+    <div class="progress-row"><span id="current-time">0:00</span><input id="player-seek" aria-label="Tua bài hát" type="range" min="0" max="100" value="0"><span id="total-time">0:00</span></div>
+  </div>
+  <div class="player-volume"><span aria-hidden="true">◖))</span><input id="player-volume" aria-label="Âm lượng" type="range" min="0" max="100" value="75"></div>
+  <audio id="audio-player" preload="none"></audio>
+</div>
+<div class="dialog-backdrop" id="vip-dialog" hidden><div class="dialog"><div class="vip-big">✦</div><h2>Cần quyền truy cập VIP</h2><p>Đăng ký hoặc gia hạn gói VIP để nghe trọn vẹn bài hát này.</p><div class="button-row"><button type="button" class="btn btn-outline" id="dialog-close">Đóng</button><a href="/vip" class="btn btn-primary">Xem gói VIP →</a></div></div></div>
+</body></html>

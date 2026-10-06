@@ -1,0 +1,38 @@
+WAVE MUSIC MVC - HUONG DAN CHAY NHANH (WINDOWS)
+
+1. Cai Node.js 20+ va MySQL Server 8.0.16+. Bat dich vu MySQL.
+2. Giai nen ZIP, mo CMD hoac PowerShell tai thu muc wave-music-mvc.
+3. Go: npm.cmd install
+4. Go: npm.cmd run setup
+   Mo file .env, sua DB_USER va DB_PASSWORD cho trung tai khoan MySQL tren may.
+   DB_NAME mac dinh = wave_music_mvc; SESSION_SECRET da duoc tu tao an toan.
+5A. NEU TAO DATABASE MOI: mo database/schema.sql trong MySQL Workbench va Execute.
+5B. NEU DANG DUNG DATABASE CU CO COT LoaiBaiHat: sao luu database, sau do chay
+    database/migrate_admin_feedback.sql MOT LAN de doi sang IsVIP + TrangThai (Soft Delete).
+6. Database moi co the go: npm.cmd run db:seed de tao du lieu demo.
+7. Mo .env, dien ADMIN_EMAIL va ADMIN_PASSWORD (toi thieu 12 ky tu), sau do go:
+   npm.cmd run create-admin
+8. Go: npm.cmd run dev
+9. Mo trinh duyet: http://localhost:3000
+
+CAP NHAT THEO NHAN XET GIANG VIEN:
+- BaiHat dung IsVIP: 0=FREE, 1=VIP.
+- BaiHat dung TrangThai: 1=hoat dong, 0=khoa/an.
+- Xoa bai hat la Soft Delete, KHONG xoa ban ghi khoi CSDL.
+- Admin upload file nhac chi .mp3/.aac; server kiem tra file va tu lay ThoiLuong.
+- Anh cover upload tuy chon chi .jpg/.png.
+- Bai TrangThai=0 khong hien thi, khong them vao playlist va khong duoc stream cho nguoi dung.
+
+TEST VIP: Dang ky user -> /vip -> Gui dang ky -> dang nhap ADMIN ->
+/admin -> Xac nhan VIP -> dang nhap user -> nghe bai hat VIP.
+Khong co thanh toan that. VIP chua duoc Admin xac nhan se khong nghe duoc.
+
+LOI THUONG GAP:
+- Access denied root: sua DB_PASSWORD trong .env.
+- Unknown database: chua import schema.sql.
+- Unknown column IsVIP/TrangThai: database cu chua chay migrate_admin_feedback.sql.
+- SESSION_SECRET 32 ky tu: neu .env cu co secret ngan thi sua lai.
+- npm.ps1 bi chan: dung npm.cmd tren PowerShell.
+- Cannot find module express: chua chay npm.cmd install trong thu muc du an.
+
+Doc README.md de biet chi tiet.
