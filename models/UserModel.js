@@ -1,4 +1,5 @@
 const db = require('../config/db');
+
 module.exports = {
   async findByEmail(email) {
     const [rows] = await db.execute('SELECT * FROM NguoiDung WHERE Email = ? LIMIT 1', [email]);
@@ -11,7 +12,6 @@ module.exports = {
     return rows[0] || null;
   },
   async create({ name, email, hash }) {
-    cons  async create({ name, email, hash }) {
     const [result] = await db.execute(
       'INSERT INTO NguoiDung (HoTen, Email, MatKhau, VaiTro, TrangThaiVIP, TrangThai) VALUES (?, ?, ?, ?, 0, 1)',
       [name, email, hash, 'USER']
@@ -21,7 +21,7 @@ module.exports = {
   async syncVIP(id, active) {
     await db.execute('UPDATE NguoiDung SET TrangThaiVIP = ? WHERE MaNguoiDung = ?', [active ? 1 : 0, id]);
   },
-  async listAdmin({ search = '', status = 'ALL', limit = 200 } = {}) {
+  async listAdmin({ search = '', status = 'ALL', limit = 10, offset = 0 } = {}) {
     const where = ["u.VaiTro='USER'"];
     const args = [];
     if (search) {
@@ -30,11 +30,13 @@ module.exports = {
     }
     if (status === 'ACTIVE') where.push('u.TrangThai=1');
     if (status === 'LOCKED') where.push('u.TrangThai=0');
-    args.push(Math.min(Math.max(Number(limit) || 200, 1), 500));
+    const safeLimit = Math.min(Math.max(Number(limit) || 10, 1), 100);
+    const safeOffset = Math.max(Number(offset) || 0, 0);
+    args.push(safeLimit, safeOffset);
     const [rows] = await db.query(`SELECT u.MaNguoiDung,u.HoTen,u.Email,u.VaiTro,u.TrangThaiVIP,u.TrangThai,u.LyDoKhoa,u.NgayDangKy,
       EXISTS(SELECT 1 FROM DangKyVIP dv WHERE dv.MaNguoiDung=u.MaNguoiDung AND dv.TrangThai='DA_XAC_NHAN'
         AND dv.NgayBatDau<=NOW() AND dv.NgayKetThuc>NOW()) AS VIPHienTai
-      FROM NguoiDung u WHERE ${where.join(' AND ')} ORDER BY u.MaNguoiDung DESC LIMIT ?`, args);
+      FROM NguoiDung u WHERE ${where.join(' AND ')} ORDER BY u.MaNguoiDung DESC LIMIT ? OFFSET ?`, args);
     return rows;
   },
   async countAdmin({ search = '', status = 'ALL' } = {}) {
