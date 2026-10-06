@@ -11,7 +11,10 @@ async function loadViewer(req, res, next) {
     if (req.session.userId) {
       const user = await User.findById(req.session.userId);
       if (!user) { delete req.session.userId; }
-      else {
+      else if (Number(user.TrangThai) === 0) {
+        delete req.session.userId;
+        flash(req,`Tài khoản đã bị khóa.${user.LyDoKhoa ? ' Lý do: ' + user.LyDoKhoa : ''}`,'warning');
+      } else {
         req.user = user;
         req.activeVIP = await VIP.active(user.MaNguoiDung);
         const active = Boolean(req.activeVIP);
