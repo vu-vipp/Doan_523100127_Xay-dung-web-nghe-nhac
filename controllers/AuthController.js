@@ -16,7 +16,7 @@ exports.register = async (req,res,next) => {
     const hash = await bcrypt.hash(password, 12);
     try { await User.create({name,email,hash}); }
     catch(err) { if(err.code==='ER_DUP_ENTRY') { flash(req,'Email đã được đăng ký.','warning'); return res.redirect('/register'); } throw err; }
-    flash(req,'Đăng ký thành công. Bạn được tặng VIP dùng thử 1 ngày. Hãy đăng nhập!','success'); res.redirect('/login');
+    flash(req,'Đăng ký thành công. Hãy đăng nhập để nhận gói trải nghiệm FREE 1 ngày nếu đủ điều kiện.','success'); res.redirect('/login');
   } catch (err) { next(err); }
 };
 exports.login = async (req,res,next) => {

@@ -16,7 +16,7 @@ function paymentReference(userId, planId) {
 exports.page = async (req,res,next) => {
   try {
     const [plans,history] = await Promise.all([
-      VIP.plans(),
+      VIP.plans(req.user ? req.user.MaNguoiDung : null),
       req.user ? VIP.history(req.user.MaNguoiDung) : Promise.resolve([])
     ]);
     res.render('vip/index',{title:'Đặc quyền VIP',plans,history});
@@ -31,6 +31,25 @@ exports.subscribe = async (req,res,next) => {
       flash(req,'Gói VIP không hợp lệ.','warning');
       return res.redirect('/vip');
     }
+    const plan = await VIP.plan(planId);
+    if (!plan) {
+      flash(req,'Gói VIP không tồn tại.','warning');
+      return res.redirect('/vip');
+    }
+
+    // Gói trải nghiệm FREE 1 ngày được kích hoạt ngay, không qua thanh toán/Admin.
+    if (Number(plan.Gia) === 0 && Number(plan.ThoiHan) === 1) {
+      const result = await VIP.claimTrial(req.user.MaNguoiDung, planId);
+      const msg = {
+        activated:'Đã kích hoạt gói trải nghiệm FREE 1 ngày. Bạn có thể nghe nhạc VIP ngay.',
+        ineligible:'Gói trải nghiệm chỉ dành cho tài khoản chưa từng đăng ký VIP.',
+        missing_plan:'Gói trải nghiệm không hợp lệ.',
+        missing_user:'Tài khoản không tồn tại hoặc đang bị khóa.'
+      };
+      flash(req,msg[result] || 'Không thể kích hoạt gói trải nghiệm.',result === 'activated' ? 'success' : 'warning');
+      return res.redirect('/vip');
+    }
+
     const prepared = await VIP.prepareCheckout(req.user.MaNguoiDung, planId);
     if (prepared.status !== 'ready') {
       const msg = {
@@ -56,9 +75,9 @@ exports.paymentPage = async (req,res,next) => {
       return res.redirect('/vip');
     }
     const plan = await VIP.plan(checkout.planId);
-    if (!plan) {
+    if (!plan || Number(plan.Gia) <= 0) {
       delete req.session.vipCheckout;
-      flash(req,'Gói VIP không còn tồn tại.','warning');
+      flash(req,'Gói thanh toán không hợp lệ.','warning');
       return res.redirect('/vip');
     }
     res.render('vip/payment',{

@@ -10,4 +10,11 @@
 <div class="panel table-scroll"><table class="data-table"><thead><tr><th>ID</th><th>Người dùng</th><th>VIP hiện tại</th><th>Trạng thái</th><th>Lý do khóa</th><th>Thao tác</th></tr></thead><tbody>
 <% users.forEach(u=>{ const active=Boolean(u.TrangThai); %><tr><td>#<%= u.MaNguoiDung %></td><td><strong><%= u.HoTen %></strong><br><small><%= u.Email %></small></td><td><span class="status-tag <%= u.VIPHienTai?'tag-yellow':'tag-green' %>"><%= u.VIPHienTai?'VIP':'FREE' %></span></td><td><span class="status-tag <%= active?'tag-green':'tag-red' %>"><%= active?'Hoạt động':'Đã khóa' %></span></td><td><%= u.LyDoKhoa || '—' %></td><td><div class="table-actions"><% if(active){ %><form method="post" action="/admin/users/<%= u.MaNguoiDung %>/lock" data-confirm="Khóa tài khoản này?"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="text" name="reason" required minlength="3" maxlength="255" placeholder="Lý do khóa"><button class="btn btn-danger btn-small" type="submit">Khóa</button></form><% } else { %><form method="post" action="/admin/users/<%= u.MaNguoiDung %>/unlock"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-outline btn-small" type="submit">Mở khóa</button></form><% } %></div></td></tr><% }) %>
 <% if(!users.length){ %><tr><td colspan="6">Không có người dùng phù hợp.</td></tr><% } %></tbody></table></div>
+<% if(totalPages>1){ const start=Math.max(1,page-2), end=Math.min(totalPages,page+2); const q=encodeURIComponent(search); %>
+<nav class="pagination" aria-label="Phân trang người dùng">
+  <a class="btn btn-outline btn-small <%= page===1?'is-disabled':'' %>" href="/admin/users?q=<%= q %>&status=<%= status %>&page=<%= Math.max(1,page-1) %>" <%= page===1?'aria-disabled="true" tabindex="-1"':'' %>>← Trước</a>
+  <% for(let p=start;p<=end;p++){ %><a class="page-number <%= p===page?'is-active':'' %>" href="/admin/users?q=<%= q %>&status=<%= status %>&page=<%= p %>" <%= p===page?'aria-current="page"':'' %>><%= p %></a><% } %>
+  <a class="btn btn-outline btn-small <%= page===totalPages?'is-disabled':'' %>" href="/admin/users?q=<%= q %>&status=<%= status %>&page=<%= Math.min(totalPages,page+1) %>" <%= page===totalPages?'aria-disabled="true" tabindex="-1"':'' %>>Sau →</a>
+</nav>
+<% } %>
 <%- include('../partials/footer') %>

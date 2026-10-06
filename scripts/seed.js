@@ -32,8 +32,7 @@ async function main(){
       VALUES(?,?,?,?,?,?,?,?,0)`, [name,artists[artist],genres[genre],artist===0?album.MaAlbum:null,`/images/cover-${cover}.svg`,file,16,isVIP]);
   }
   for(const [name,days,price,description] of [
-    ['Dùng thử VIP 1 ngày',1,0,'VIP dùng thử miễn phí 1 ngày dành cho tài khoản mới.'],
-    ['VIP 7 ngày',7,19000,'Gói trải nghiệm VIP trong 7 ngày.'],
+    ['Trải nghiệm FREE 1 ngày',1,0,'Gói trải nghiệm VIP miễn phí 1 ngày, chỉ dành cho tài khoản chưa từng đăng ký VIP.'],
     ['VIP 30 ngày',30,49000,'Gói VIP 1 tháng cho người yêu âm nhạc.'],
     ['VIP 90 ngày',90,129000,'Gói VIP dài hạn trong 90 ngày.']]) {
     const exists=await one('SELECT MaGoi FROM GoiVIP WHERE TenGoi=? LIMIT 1',[name]);
