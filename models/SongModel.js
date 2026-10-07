@@ -49,6 +49,14 @@ module.exports = {
     const [rows] = await db.execute('SELECT * FROM CaSi ORDER BY TenCaSi');
     return rows;
   },
+  async findOrCreateArtist(name) {
+    const clean = String(name || '').trim().replace(/\s+/g, ' ');
+    if (!clean || clean.length > 150) throw new Error('Tên ca sĩ không hợp lệ.');
+    const [rows] = await db.execute('SELECT MaCaSi FROM CaSi WHERE TenCaSi=? LIMIT 1', [clean]);
+    if (rows.length) return rows[0].MaCaSi;
+    const [result] = await db.execute('INSERT INTO CaSi (TenCaSi) VALUES (?)', [clean]);
+    return result.insertId;
+  },
   async albums() {
     const [rows] = await db.execute('SELECT a.*, c.TenCaSi FROM Album a JOIN CaSi c ON c.MaCaSi=a.MaCaSi ORDER BY a.TenAlbum');
     return rows;
