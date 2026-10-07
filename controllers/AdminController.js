@@ -19,13 +19,14 @@ const pageNo = value => { const n=Number(value); return Number.isSafeInteger(n) 
 
 function parseSong(body, existing) {
   const name=String(body.name||'').trim();
-  const artistId=id(body.artistId), genreId=id(body.genreId), albumId=body.albumId?id(body.albumId):null;
+  const artistName=String(body.artistName||'').trim().replace(/\s+/g,' ');
+  const genreId=id(body.genreId), albumId=body.albumId?id(body.albumId):null;
   const isVIP = String(body.isVIP||'0') === '1';
-  if(!name || name.length>200 || !artistId || !genreId || (body.albumId&&!albumId) || !['0','1'].includes(String(body.isVIP||'0'))) {
+  if(!name || name.length>200 || !artistName || artistName.length>150 || !genreId || (body.albumId&&!albumId) || !['0','1'].includes(String(body.isVIP||'0'))) {
     throw new Error('Tên bài hát, ca sĩ, thể loại hoặc quyền FREE/VIP không hợp lệ.');
   }
   return {
-    name, artistId, genreId, albumId, isVIP,
+    name, artistName, artistId:null, genreId, albumId, isVIP,
     cover: existing?.AnhBia || null,
     audio: existing?.DuongDanAudio || '',
     duration: existing?.ThoiLuong || 0
@@ -51,7 +52,7 @@ function localCoverPath(url) {
 function localAudioPath(filename) {
   return /^upload-[a-zA-Z0-9-]+\.(mp3|aac)$/i.test(String(filename||'')) ? path.join(AUDIO_DIR,filename) : null;
 }
-async function songFormData() { return Promise.all([Song.artists(), Song.genres(), Song.albums()]); }
+async function songFormData() { return Promise.all([Song.genres(), Song.albums()]); }
 
 exports.dashboard = async (req,res,next) => {
   try {
@@ -113,15 +114,15 @@ exports.musicPreview = async (req,res,next) => {
   } catch(err){next(err);}
 };
 exports.newForm = async (req,res,next) => {
-  try { const [artists,genres,albums]=await songFormData();
-    res.render('admin/song-form',{title:'Thêm bài hát',song:null,artists,genres,albums});
+  try { const [genres,albums]=await songFormData();
+    res.render('admin/song-form',{title:'Thêm bài hát',song:null,genres,albums});
   } catch(err){next(err);}
 };
 exports.editForm = async (req,res,next) => {
   try {const song=await Song.findAdmin(id(req.params.id));
     if(!song) return res.status(404).render('errors/error',{title:'Không tìm thấy',message:'Bài hát không tồn tại.'});
-    const [artists,genres,albums]=await songFormData();
-    res.render('admin/song-form',{title:'Sửa bài hát',song,artists,genres,albums});
+    const [genres,albums]=await songFormData();
+    res.render('admin/song-form',{title:'Sửa bài hát',song,genres,albums});
   } catch(err){next(err);}
 };
 
@@ -131,6 +132,7 @@ async function save(req,res,next,editing) {
     const old=editing?await Song.findAdmin(id(req.params.id)):null;
     if(editing&&!old) return res.sendStatus(404);
     const song=parseSong(req.body,old);
+    song.artistId=await Song.findOrCreateArtist(song.artistName);
     if(song.albumId && !(await Song.albumMatchesArtist(song.albumId,song.artistId))) {
       throw new Error('Album đã chọn không thuộc ca sĩ của bài hát.');
     }
