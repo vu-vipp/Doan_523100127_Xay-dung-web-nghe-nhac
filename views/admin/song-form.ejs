@@ -13,7 +13,8 @@
       <input name="name" required maxlength="200" value="<%= song?.TenBaiHat||'' %>" placeholder="Nhập tên bài hát">
     </label>
     <label>Ca sĩ *
-      <select name="artistId" required><option value="">Chọn ca sĩ</option><% artists.forEach(a=>{ %><option value="<%= a.MaCaSi %>" <%= song?.MaCaSi===a.MaCaSi?'selected':'' %>><%= a.TenCaSi %></option><% }) %></select>
+      <input type="text" name="artistName" required maxlength="150" value="<%= song?.TenCaSi||'' %>" placeholder="Nhập tên ca sĩ">
+      <small>Có thể nhập tên ca sĩ mới. Nếu tên chưa tồn tại, hệ thống sẽ tự tạo ca sĩ trong CSDL.</small>
     </label>
     <label>Thể loại *
       <select name="genreId" required><option value="">Chọn thể loại</option><% genres.forEach(g=>{ %><option value="<%= g.MaTheLoai %>" <%= song?.MaTheLoai===g.MaTheLoai?'selected':'' %>><%= g.TenTheLoai %></option><% }) %></select>
