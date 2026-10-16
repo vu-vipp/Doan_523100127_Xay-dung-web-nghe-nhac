@@ -59,11 +59,19 @@ jobs:
             echo "| Nhóm kiểm thử | Kết quả |"
             echo "|---|---|"
             echo "| Syntax + schema | ${{ steps.syntax.outcome }} |"
-            echo "| 10 core test case | ${{ steps.core.outcome }} |"
+            echo "| 13 test case có JSON minh chứng | ${{ steps.core.outcome }} |"
             echo "| Regression | ${{ steps.regression.outcome }} |"
             echo ""
-            echo "Chi tiết xem trong log của từng step hoặc artifact **wave-test-logs**."
+            echo "Chi tiết xem trong log của từng step, artifact **wave-test-logs** và **wave-test-results**."
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload JSON test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave-test-results
+          path: test-results/test-results.json
+          if-no-files-found: error
 
       - name: Upload test logs
         if: always()
