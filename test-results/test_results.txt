@@ -1,95 +1,100 @@
+============================================================
+BÁO CÁO KIỂM THỬ TÍCH HỢP THỰC TẾ - WAVE MUSIC
+Base URL: http://127.0.0.1:3000
+============================================================
+
 TC01 (Tài khoản thường nghe bài FREE):
-   - Input: user=USER thường, songId=1, IsVIP=0, Range='bytes=0-15'
+   - Input: user='itest_1792140825_free@wave.local', songId=1, IsVIP=0, Range='bytes=0-15'
    - Status: HTTP 206 Partial Content
-   - Result: Server cấp audio FREE thành công; nhận 16 byte dữ liệu audio/wav.
+   - Result: Server trả 16 byte audio cho bài FREE 'Bình minh trên phố'.
    - Trạng thái: PASS
 
 TC02 (Tài khoản thường chọn bài VIP):
-   - Input: user=USER thường, songId=5, IsVIP=1, activeVIP=null
+   - Input: user='itest_1792140825_free@wave.local', songId=5, IsVIP=1, activeVIP=None
    - Status: HTTP 403 Forbidden
-   - Result: Server từ chối cấp audio và trả thông báo yêu cầu quyền VIP.
+   - Result: Server từ chối audio: "Bạn cần đăng ký hoặc gia hạn VIP để phát bài hát này."
    - Trạng thái: PASS
 
-TC03 (Tài khoản VIP còn hạn nghe bài VIP):
-   - Input: user=USER, songId=5, IsVIP=1, activeVIP=DA_XAC_NHAN, Range='bytes=0-15'
+TC03 (Tài khoản VIP còn hạn chọn bài VIP):
+   - Input: user='itest_1792140825_vip@wave.local', songId=5, activeVIP=DA_XAC_NHAN
    - Status: HTTP 206 Partial Content
-   - Result: Server xác nhận quyền VIP và stream bài VIP thành công.
+   - Result: Server xác nhận quyền VIP và stream bài 'Đại dương tím' thành công.
    - Trạng thái: PASS
 
 TC04 (Thêm bài hát vào playlist thuộc tài khoản):
-   - Input: playlistId=3, userId=7, songId=9
-   - Status: Database affectedRows=1
-   - Result: Tạo bản ghi ChiTietPlaylist cho playlistId=3 thuộc userId=7 và songId=9.
+   - Input: userId=2, songId=1, playlist='itest_1792140825_playlist'
+   - Status: HTTP 302 Found
+   - Result: Bài hát được thêm vào playlistId=1; CSDL có đúng 1 bản ghi ChiTietPlaylist.
    - Trạng thái: PASS
 
 TC05 (Thêm lại bài đã có trong cùng playlist):
-   - Input: playlistId=3, userId=7, songId=9 đã tồn tại
-   - Status: Database affectedRows=0
-   - Result: INSERT IGNORE không tạo thêm bản ghi khi bài hát đã tồn tại trong playlist.
+   - Input: playlistId=1, songId=1 đã tồn tại
+   - Status: HTTP 302 Found
+   - Result: Hệ thống không tạo bản ghi trùng và hiển thị thông báo bài hát đã có trong playlist.
    - Trạng thái: PASS
 
 TC06 (Admin xác nhận yêu cầu VIP đang chờ):
-   - Input: registrationId=20, TrangThai=CHO_XAC_NHAN, ThoiHan=30 ngày, action=approve
-   - Status: Database transaction COMMIT
-   - Result: DangKyVIP được cập nhật DA_XAC_NHAN, thiết lập thời hạn 30 ngày và TrangThaiVIP=1.
+   - Input: registrationId=3, action=approve
+   - Status: HTTP 302 Found
+   - Result: Admin duyệt thành công: DangKyVIP=DA_XAC_NHAN và TrangThaiVIP=1.
    - Trạng thái: PASS
 
 TC07 (Admin upload audio/cover hợp lệ):
-   - Input: name=Auto Song, artistName=Auto Singer, genreId=1, audio=.mp3 hợp lệ, cover=.jpg hợp lệ
-   - Status: HTTP 302 Found -> /admin
-   - Result: Lưu bài hát thành công; ThoiLuong=1 giây được đọc tự động từ audio; audio và cover hợp lệ.
+   - Input: name='itest_1792140825_song', artistName='itest_1792140825_artist', genreId=1, audio=.mp3, cover=.jpg
+   - Status: HTTP 302 Found
+   - Result: Lưu bài hát thành công; ThoiLuong=3 giây được lấy từ audio.
    - Trạng thái: PASS
 
-TC08 (Admin upload audio sai định dạng):
-   - Input: audioFile=malware.exe, mimetype=application/octet-stream
-   - Status: HTTP 302 Found -> /admin/songs/new
-   - Result: Hệ thống từ chối file sai định dạng và hiển thị lỗi chỉ nhận file .mp3 hoặc .aac hợp lệ.
+TC08 (Admin upload audio/ảnh sai định dạng):
+   - Input: audioFile='malware.exe', mimetype='application/octet-stream'
+   - Status: HTTP 302 Found
+   - Result: Hệ thống từ chối file .exe và hiển thị lỗi chỉ nhận .mp3 hoặc .aac hợp lệ.
    - Trạng thái: PASS
 
 TC09 (Admin khóa/ẩn bài đang hoạt động):
-   - Input: songId=11, TrangThai=1
-   - Status: Database affectedRows=1
-   - Result: Soft Delete thành công: TrangThai=0, dữ liệu bài hát vẫn được giữ trong CSDL.
+   - Input: songId=7, TrangThai=1
+   - Status: HTTP 302 Found; GET User -> HTTP 404 Not Found
+   - Result: Soft Delete đặt TrangThai=0 và bài không còn hiển thị cho User.
    - Trạng thái: PASS
 
-TC10 (Admin khôi phục bài hát đã ẩn):
-   - Input: songId=11, TrangThai=0
-   - Status: Database affectedRows=1
-   - Result: Khôi phục thành công: TrangThai=1, bài hát được kích hoạt lại.
+TC10 (Admin mở khóa bài hát đã ẩn):
+   - Input: songId=7, TrangThai=0
+   - Status: HTTP 302 Found; GET User -> HTTP 200 OK
+   - Result: Khôi phục đặt TrangThai=1 và bài hoạt động lại.
    - Trạng thái: PASS
 
 TC11 (User chưa từng đăng ký VIP mở trang VIP):
-   - Input: userId=12, lịch sử DangKyVIP=không có
-   - Status: Query completed: 1 trial plan
-   - Result: VIP.plans(12) trả về gói Trải nghiệm FREE 1 ngày.
+   - Input: user='itest_1792140825_free@wave.local', lịch sử DangKyVIP=không có
+   - Status: HTTP 200 OK
+   - Result: Trang VIP hiển thị form gói Trải nghiệm FREE 1 ngày cho tài khoản chưa từng đăng ký VIP.
    - Trạng thái: PASS
 
 TC12 (User đã từng có DangKyVIP mở trang VIP):
-   - Input: userId=13, lịch sử DangKyVIP=đã tồn tại
-   - Status: Query completed: 0 trial plan
-   - Result: VIP.plans(13) không trả về gói FREE 1 ngày khi tài khoản đã có lịch sử DangKyVIP.
+   - Input: user='itest_1792140825_history@wave.local', lịch sử DangKyVIP=đã tồn tại
+   - Status: HTTP 200 OK
+   - Result: Không còn form đăng ký gói FREE 1 ngày vì tài khoản đã có lịch sử DangKyVIP.
    - Trạng thái: PASS
 
 TC13 (User nhận gói FREE 1 ngày):
-   - Input: userId=3, planId=1, Gia=0, ThoiHan=1, chưa từng có DangKyVIP
-   - Status: Database transaction COMMIT
-   - Result: Tạo DangKyVIP=DA_XAC_NHAN, NgayKetThuc=NOW()+1 DAY và TrangThaiVIP=1.
+   - Input: userId=2, planId=1
+   - Status: HTTP 302 Found
+   - Result: Tạo DangKyVIP=DA_XAC_NHAN, thời hạn 1 ngày và kích hoạt VIP ngay.
    - Trạng thái: PASS
 
 TC14 (User chọn VIP trả phí và xác nhận thanh toán mô phỏng):
-   - Input: userId=7, planId=2, Gia=49000, ThoiHan=30, paymentMethod=BANK_TRANSFER
-   - Status: Database transaction COMMIT
-   - Result: Sau xác nhận thanh toán mô phỏng, tạo DangKyVIP trạng thái CHO_XAC_NHAN cho gói 30 ngày.
+   - Input: user='itest_1792140825_paid@wave.local', planId=2, paymentMethod=BANK_TRANSFER
+   - Status: HTTP 302 Found -> /vip/payment; HTTP 302 Found
+   - Result: Sau thanh toán mô phỏng, hệ thống tạo yêu cầu VIP CHO_XAC_NHAN.
    - Trạng thái: PASS
 
 TC15 (Admin khóa USER và nhập lý do hợp lệ):
-   - Input: userId=7, reason='Vi phạm quy định', email=locked@wave.local, password=12345678
-   - Status: HTTP 302 Found -> /login
-   - Result: TrangThai=0, LyDoKhoa được lưu; đăng nhập bị từ chối với lý do khóa.
+   - Input: userId=7, reason='Vi phạm quy định kiểm thử'
+   - Status: HTTP 302 Found; login -> HTTP 302 Found
+   - Result: TrangThai=0, lưu LyDoKhoa và hệ thống từ chối đăng nhập với đúng lý do.
    - Trạng thái: PASS
 
 TC16 (Admin mở khóa USER):
-   - Input: userId=7, email=unlocked@wave.local, password=12345678
-   - Status: HTTP 302 Found -> /
-   - Result: TrangThai=1, LyDoKhoa=NULL; đăng nhập thành công và session userId=7 được tạo lại.
+   - Input: userId=7
+   - Status: HTTP 302 Found; login -> HTTP 302 Found; GET / -> HTTP 200 OK
+   - Result: TrangThai=1, LyDoKhoa=NULL và user đăng nhập lại thành công.
    - Trạng thái: PASS
