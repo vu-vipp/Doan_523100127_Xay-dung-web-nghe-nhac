@@ -229,7 +229,7 @@ function render(template, data) {
   assert.match(vipRoutes,/confirmPayment/);
   const paymentOutput=render('vip/payment.ejs',{...common,plan:{MaGoi:2,TenGoi:'VIP Plus',ThoiHan:30,Gia:49000},paymentRef:'WAVE VIP U7 G2',demoBank:{name:'WAVE Demo Bank',account:'0000 1234 5678',holder:'WAVE MUSIC DEMO'}});
   assert.match(paymentOutput,/Cổng thanh toán WAVE VIP/);
-  assert.match(paymentOutput,/QR MÔ PHỎNG/);
+  assert.match(paymentOutput,/Mã QR thanh toán WAVE VIP|payment-qr-card/);
   assert.match(paymentOutput,/Xác nhận đã thanh toán/);
   assert.match(paymentOutput,/BANK_TRANSFER/);
   assert.match(paymentOutput,/BANK_CARD/);
