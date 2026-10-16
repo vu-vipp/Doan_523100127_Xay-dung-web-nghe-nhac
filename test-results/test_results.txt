@@ -1,0 +1,95 @@
+TC01 (Tài khoản thường nghe bài FREE):
+   - Input: user=USER thường, songId=1, IsVIP=0, Range='bytes=0-15'
+   - Status: HTTP 206 Partial Content
+   - Result: Server cấp audio FREE thành công; nhận 16 byte dữ liệu audio/wav.
+   - Trạng thái: PASS
+
+TC02 (Tài khoản thường chọn bài VIP):
+   - Input: user=USER thường, songId=5, IsVIP=1, activeVIP=null
+   - Status: HTTP 403 Forbidden
+   - Result: Server từ chối cấp audio và trả thông báo yêu cầu quyền VIP.
+   - Trạng thái: PASS
+
+TC03 (Tài khoản VIP còn hạn nghe bài VIP):
+   - Input: user=USER, songId=5, IsVIP=1, activeVIP=DA_XAC_NHAN, Range='bytes=0-15'
+   - Status: HTTP 206 Partial Content
+   - Result: Server xác nhận quyền VIP và stream bài VIP thành công.
+   - Trạng thái: PASS
+
+TC04 (Thêm bài hát vào playlist thuộc tài khoản):
+   - Input: playlistId=3, userId=7, songId=9
+   - Status: Database affectedRows=1
+   - Result: Tạo bản ghi ChiTietPlaylist cho playlistId=3 thuộc userId=7 và songId=9.
+   - Trạng thái: PASS
+
+TC05 (Thêm lại bài đã có trong cùng playlist):
+   - Input: playlistId=3, userId=7, songId=9 đã tồn tại
+   - Status: Database affectedRows=0
+   - Result: INSERT IGNORE không tạo thêm bản ghi khi bài hát đã tồn tại trong playlist.
+   - Trạng thái: PASS
+
+TC06 (Admin xác nhận yêu cầu VIP đang chờ):
+   - Input: registrationId=20, TrangThai=CHO_XAC_NHAN, ThoiHan=30 ngày, action=approve
+   - Status: Database transaction COMMIT
+   - Result: DangKyVIP được cập nhật DA_XAC_NHAN, thiết lập thời hạn 30 ngày và TrangThaiVIP=1.
+   - Trạng thái: PASS
+
+TC07 (Admin upload audio/cover hợp lệ):
+   - Input: name=Auto Song, artistName=Auto Singer, genreId=1, audio=.mp3 hợp lệ, cover=.jpg hợp lệ
+   - Status: HTTP 302 Found -> /admin
+   - Result: Lưu bài hát thành công; ThoiLuong=1 giây được đọc tự động từ audio; audio và cover hợp lệ.
+   - Trạng thái: PASS
+
+TC08 (Admin upload audio sai định dạng):
+   - Input: audioFile=malware.exe, mimetype=application/octet-stream
+   - Status: HTTP 302 Found -> /admin/songs/new
+   - Result: Hệ thống từ chối file sai định dạng và hiển thị lỗi chỉ nhận file .mp3 hoặc .aac hợp lệ.
+   - Trạng thái: PASS
+
+TC09 (Admin khóa/ẩn bài đang hoạt động):
+   - Input: songId=11, TrangThai=1
+   - Status: Database affectedRows=1
+   - Result: Soft Delete thành công: TrangThai=0, dữ liệu bài hát vẫn được giữ trong CSDL.
+   - Trạng thái: PASS
+
+TC10 (Admin khôi phục bài hát đã ẩn):
+   - Input: songId=11, TrangThai=0
+   - Status: Database affectedRows=1
+   - Result: Khôi phục thành công: TrangThai=1, bài hát được kích hoạt lại.
+   - Trạng thái: PASS
+
+TC11 (User chưa từng đăng ký VIP mở trang VIP):
+   - Input: userId=12, lịch sử DangKyVIP=không có
+   - Status: Query completed: 1 trial plan
+   - Result: VIP.plans(12) trả về gói Trải nghiệm FREE 1 ngày.
+   - Trạng thái: PASS
+
+TC12 (User đã từng có DangKyVIP mở trang VIP):
+   - Input: userId=13, lịch sử DangKyVIP=đã tồn tại
+   - Status: Query completed: 0 trial plan
+   - Result: VIP.plans(13) không trả về gói FREE 1 ngày khi tài khoản đã có lịch sử DangKyVIP.
+   - Trạng thái: PASS
+
+TC13 (User nhận gói FREE 1 ngày):
+   - Input: userId=3, planId=1, Gia=0, ThoiHan=1, chưa từng có DangKyVIP
+   - Status: Database transaction COMMIT
+   - Result: Tạo DangKyVIP=DA_XAC_NHAN, NgayKetThuc=NOW()+1 DAY và TrangThaiVIP=1.
+   - Trạng thái: PASS
+
+TC14 (User chọn VIP trả phí và xác nhận thanh toán mô phỏng):
+   - Input: userId=7, planId=2, Gia=49000, ThoiHan=30, paymentMethod=BANK_TRANSFER
+   - Status: Database transaction COMMIT
+   - Result: Sau xác nhận thanh toán mô phỏng, tạo DangKyVIP trạng thái CHO_XAC_NHAN cho gói 30 ngày.
+   - Trạng thái: PASS
+
+TC15 (Admin khóa USER và nhập lý do hợp lệ):
+   - Input: userId=7, reason='Vi phạm quy định', email=locked@wave.local, password=12345678
+   - Status: HTTP 302 Found -> /login
+   - Result: TrangThai=0, LyDoKhoa được lưu; đăng nhập bị từ chối với lý do khóa.
+   - Trạng thái: PASS
+
+TC16 (Admin mở khóa USER):
+   - Input: userId=7, email=unlocked@wave.local, password=12345678
+   - Status: HTTP 302 Found -> /
+   - Result: TrangThai=1, LyDoKhoa=NULL; đăng nhập thành công và session userId=7 được tạo lại.
+   - Trạng thái: PASS
