@@ -1,28 +1,28 @@
 {
   "TC01": {
     "name": "Tài khoản thường nghe bài FREE",
-    "input": "user='itest_1792140825_free@wave.local', songId=1, IsVIP=0, Range='bytes=0-15'",
+    "input": "user='itest_1792141164_free@wave.local', songId=1, IsVIP=0, Range='bytes=0-15'",
     "expected": "Bài hát FREE phát bình thường.",
     "actual": "HTTP 206 Partial Content. Server trả 16 byte audio cho bài FREE 'Bình minh trên phố'.",
     "status": "PASS"
   },
   "TC02": {
     "name": "Tài khoản thường chọn bài VIP",
-    "input": "user='itest_1792140825_free@wave.local', songId=5, IsVIP=1, activeVIP=None",
+    "input": "user='itest_1792141164_free@wave.local', songId=5, IsVIP=1, activeVIP=None",
     "expected": "Không cấp audio; yêu cầu đăng ký VIP.",
     "actual": "HTTP 403 Forbidden. Server từ chối audio: \"Bạn cần đăng ký hoặc gia hạn VIP để phát bài hát này.\"",
     "status": "PASS"
   },
   "TC03": {
     "name": "Tài khoản VIP còn hạn chọn bài VIP",
-    "input": "user='itest_1792140825_vip@wave.local', songId=5, activeVIP=DA_XAC_NHAN",
+    "input": "user='itest_1792141164_vip@wave.local', songId=5, activeVIP=DA_XAC_NHAN",
     "expected": "Bài hát VIP phát thành công.",
     "actual": "HTTP 206 Partial Content. Server xác nhận quyền VIP và stream bài 'Đại dương tím' thành công.",
     "status": "PASS"
   },
   "TC04": {
     "name": "Thêm bài hát vào playlist thuộc tài khoản",
-    "input": "userId=2, songId=1, playlist='itest_1792140825_playlist'",
+    "input": "userId=2, songId=1, playlist='itest_1792141164_playlist'",
     "expected": "Bài được thêm đúng playlist.",
     "actual": "HTTP 302 Found. Bài hát được thêm vào playlistId=1; CSDL có đúng 1 bản ghi ChiTietPlaylist.",
     "status": "PASS"
@@ -43,7 +43,7 @@
   },
   "TC07": {
     "name": "Admin upload audio/cover hợp lệ",
-    "input": "name='itest_1792140825_song', artistName='itest_1792140825_artist', genreId=1, audio=.mp3, cover=.jpg",
+    "input": "name='itest_1792141164_song', artistName='itest_1792141164_artist', genreId=1, audio=.mp3, cover=.jpg",
     "expected": "Bài hát được lưu; ThoiLuong lấy từ audio.",
     "actual": "HTTP 302 Found. Lưu bài hát thành công; ThoiLuong=3 giây được lấy từ audio.",
     "status": "PASS"
@@ -71,14 +71,14 @@
   },
   "TC11": {
     "name": "User chưa từng đăng ký VIP mở trang VIP",
-    "input": "user='itest_1792140825_free@wave.local', lịch sử DangKyVIP=không có",
+    "input": "user='itest_1792141164_free@wave.local', lịch sử DangKyVIP=không có",
     "expected": "Hiển thị gói Trải nghiệm FREE 1 ngày.",
     "actual": "HTTP 200 OK. Trang VIP hiển thị form gói Trải nghiệm FREE 1 ngày cho tài khoản chưa từng đăng ký VIP.",
     "status": "PASS"
   },
   "TC12": {
     "name": "User đã từng có DangKyVIP mở trang VIP",
-    "input": "user='itest_1792140825_history@wave.local', lịch sử DangKyVIP=đã tồn tại",
+    "input": "user='itest_1792141164_history@wave.local', lịch sử DangKyVIP=đã tồn tại",
     "expected": "Không còn hiển thị gói FREE 1 ngày.",
     "actual": "HTTP 200 OK. Không còn form đăng ký gói FREE 1 ngày vì tài khoản đã có lịch sử DangKyVIP.",
     "status": "PASS"
@@ -92,7 +92,7 @@
   },
   "TC14": {
     "name": "User chọn VIP trả phí và xác nhận thanh toán mô phỏng",
-    "input": "user='itest_1792140825_paid@wave.local', planId=2, paymentMethod=BANK_TRANSFER",
+    "input": "user='itest_1792141164_paid@wave.local', planId=2, paymentMethod=BANK_TRANSFER",
     "expected": "Tạo yêu cầu CHO_XAC_NHAN.",
     "actual": "HTTP 302 Found -> /vip/payment; HTTP 302 Found. Sau thanh toán mô phỏng, hệ thống tạo yêu cầu VIP CHO_XAC_NHAN.",
     "status": "PASS"

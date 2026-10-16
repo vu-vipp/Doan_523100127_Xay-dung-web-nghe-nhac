@@ -4,25 +4,25 @@ Base URL: http://127.0.0.1:3000
 ============================================================
 
 TC01 (Tài khoản thường nghe bài FREE):
-   - Input: user='itest_1792140825_free@wave.local', songId=1, IsVIP=0, Range='bytes=0-15'
+   - Input: user='itest_1792141164_free@wave.local', songId=1, IsVIP=0, Range='bytes=0-15'
    - Status: HTTP 206 Partial Content
    - Result: Server trả 16 byte audio cho bài FREE 'Bình minh trên phố'.
    - Trạng thái: PASS
 
 TC02 (Tài khoản thường chọn bài VIP):
-   - Input: user='itest_1792140825_free@wave.local', songId=5, IsVIP=1, activeVIP=None
+   - Input: user='itest_1792141164_free@wave.local', songId=5, IsVIP=1, activeVIP=None
    - Status: HTTP 403 Forbidden
    - Result: Server từ chối audio: "Bạn cần đăng ký hoặc gia hạn VIP để phát bài hát này."
    - Trạng thái: PASS
 
 TC03 (Tài khoản VIP còn hạn chọn bài VIP):
-   - Input: user='itest_1792140825_vip@wave.local', songId=5, activeVIP=DA_XAC_NHAN
+   - Input: user='itest_1792141164_vip@wave.local', songId=5, activeVIP=DA_XAC_NHAN
    - Status: HTTP 206 Partial Content
    - Result: Server xác nhận quyền VIP và stream bài 'Đại dương tím' thành công.
    - Trạng thái: PASS
 
 TC04 (Thêm bài hát vào playlist thuộc tài khoản):
-   - Input: userId=2, songId=1, playlist='itest_1792140825_playlist'
+   - Input: userId=2, songId=1, playlist='itest_1792141164_playlist'
    - Status: HTTP 302 Found
    - Result: Bài hát được thêm vào playlistId=1; CSDL có đúng 1 bản ghi ChiTietPlaylist.
    - Trạng thái: PASS
@@ -40,7 +40,7 @@ TC06 (Admin xác nhận yêu cầu VIP đang chờ):
    - Trạng thái: PASS
 
 TC07 (Admin upload audio/cover hợp lệ):
-   - Input: name='itest_1792140825_song', artistName='itest_1792140825_artist', genreId=1, audio=.mp3, cover=.jpg
+   - Input: name='itest_1792141164_song', artistName='itest_1792141164_artist', genreId=1, audio=.mp3, cover=.jpg
    - Status: HTTP 302 Found
    - Result: Lưu bài hát thành công; ThoiLuong=3 giây được lấy từ audio.
    - Trạng thái: PASS
@@ -64,13 +64,13 @@ TC10 (Admin mở khóa bài hát đã ẩn):
    - Trạng thái: PASS
 
 TC11 (User chưa từng đăng ký VIP mở trang VIP):
-   - Input: user='itest_1792140825_free@wave.local', lịch sử DangKyVIP=không có
+   - Input: user='itest_1792141164_free@wave.local', lịch sử DangKyVIP=không có
    - Status: HTTP 200 OK
    - Result: Trang VIP hiển thị form gói Trải nghiệm FREE 1 ngày cho tài khoản chưa từng đăng ký VIP.
    - Trạng thái: PASS
 
 TC12 (User đã từng có DangKyVIP mở trang VIP):
-   - Input: user='itest_1792140825_history@wave.local', lịch sử DangKyVIP=đã tồn tại
+   - Input: user='itest_1792141164_history@wave.local', lịch sử DangKyVIP=đã tồn tại
    - Status: HTTP 200 OK
    - Result: Không còn form đăng ký gói FREE 1 ngày vì tài khoản đã có lịch sử DangKyVIP.
    - Trạng thái: PASS
@@ -82,7 +82,7 @@ TC13 (User nhận gói FREE 1 ngày):
    - Trạng thái: PASS
 
 TC14 (User chọn VIP trả phí và xác nhận thanh toán mô phỏng):
-   - Input: user='itest_1792140825_paid@wave.local', planId=2, paymentMethod=BANK_TRANSFER
+   - Input: user='itest_1792141164_paid@wave.local', planId=2, paymentMethod=BANK_TRANSFER
    - Status: HTTP 302 Found -> /vip/payment; HTTP 302 Found
    - Result: Sau thanh toán mô phỏng, hệ thống tạo yêu cầu VIP CHO_XAC_NHAN.
    - Trạng thái: PASS
