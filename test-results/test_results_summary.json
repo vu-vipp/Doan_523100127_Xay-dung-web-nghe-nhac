@@ -1,0 +1,130 @@
+{
+  "TC01": {
+    "name": "Tài khoản thường nghe bài FREE",
+    "input": "user=USER thường, songId=1, IsVIP=0, Range='bytes=0-15'",
+    "expected": "Bài hát FREE phát bình thường.",
+    "status": "HTTP 206 Partial Content",
+    "result": "Server cấp audio FREE thành công; nhận 16 byte dữ liệu audio/wav.",
+    "test_status": "PASS"
+  },
+  "TC02": {
+    "name": "Tài khoản thường chọn bài VIP",
+    "input": "user=USER thường, songId=5, IsVIP=1, activeVIP=null",
+    "expected": "Không cấp audio; yêu cầu đăng ký VIP.",
+    "status": "HTTP 403 Forbidden",
+    "result": "Server từ chối cấp audio và trả thông báo yêu cầu quyền VIP.",
+    "test_status": "PASS"
+  },
+  "TC03": {
+    "name": "Tài khoản VIP còn hạn nghe bài VIP",
+    "input": "user=USER, songId=5, IsVIP=1, activeVIP=DA_XAC_NHAN, Range='bytes=0-15'",
+    "expected": "Bài hát VIP phát thành công.",
+    "status": "HTTP 206 Partial Content",
+    "result": "Server xác nhận quyền VIP và stream bài VIP thành công.",
+    "test_status": "PASS"
+  },
+  "TC04": {
+    "name": "Thêm bài hát vào playlist thuộc tài khoản",
+    "input": "playlistId=3, userId=7, songId=9",
+    "expected": "Bài được thêm đúng playlist.",
+    "status": "Database affectedRows=1",
+    "result": "Tạo bản ghi ChiTietPlaylist cho playlistId=3 thuộc userId=7 và songId=9.",
+    "test_status": "PASS"
+  },
+  "TC05": {
+    "name": "Thêm lại bài đã có trong cùng playlist",
+    "input": "playlistId=3, userId=7, songId=9 đã tồn tại",
+    "expected": "Không tạo bản ghi trùng.",
+    "status": "Database affectedRows=0",
+    "result": "INSERT IGNORE không tạo thêm bản ghi khi bài hát đã tồn tại trong playlist.",
+    "test_status": "PASS"
+  },
+  "TC06": {
+    "name": "Admin xác nhận yêu cầu VIP đang chờ",
+    "input": "registrationId=20, TrangThai=CHO_XAC_NHAN, ThoiHan=30 ngày, action=approve",
+    "expected": "Đăng ký chuyển DA_XAC_NHAN và người dùng có quyền VIP.",
+    "status": "Database transaction COMMIT",
+    "result": "DangKyVIP được cập nhật DA_XAC_NHAN, thiết lập thời hạn 30 ngày và TrangThaiVIP=1.",
+    "test_status": "PASS"
+  },
+  "TC07": {
+    "name": "Admin upload audio/cover hợp lệ",
+    "input": "name=Auto Song, artistName=Auto Singer, genreId=1, audio=.mp3 hợp lệ, cover=.jpg hợp lệ",
+    "expected": "Bài hát được lưu; ThoiLuong lấy từ audio.",
+    "status": "HTTP 302 Found -> /admin",
+    "result": "Lưu bài hát thành công; ThoiLuong=1 giây được đọc tự động từ audio; audio và cover hợp lệ.",
+    "test_status": "PASS"
+  },
+  "TC08": {
+    "name": "Admin upload audio sai định dạng",
+    "input": "audioFile=malware.exe, mimetype=application/octet-stream",
+    "expected": "Hệ thống từ chối và thông báo lỗi.",
+    "status": "HTTP 302 Found -> /admin/songs/new",
+    "result": "Hệ thống từ chối file sai định dạng và hiển thị lỗi chỉ nhận file .mp3 hoặc .aac hợp lệ.",
+    "test_status": "PASS"
+  },
+  "TC09": {
+    "name": "Admin khóa/ẩn bài đang hoạt động",
+    "input": "songId=11, TrangThai=1",
+    "expected": "TrangThai=0; bài không còn hiển thị cho User.",
+    "status": "Database affectedRows=1",
+    "result": "Soft Delete thành công: TrangThai=0, dữ liệu bài hát vẫn được giữ trong CSDL.",
+    "test_status": "PASS"
+  },
+  "TC10": {
+    "name": "Admin khôi phục bài hát đã ẩn",
+    "input": "songId=11, TrangThai=0",
+    "expected": "TrangThai=1; bài hoạt động lại.",
+    "status": "Database affectedRows=1",
+    "result": "Khôi phục thành công: TrangThai=1, bài hát được kích hoạt lại.",
+    "test_status": "PASS"
+  },
+  "TC11": {
+    "name": "User chưa từng đăng ký VIP mở trang VIP",
+    "input": "userId=12, lịch sử DangKyVIP=không có",
+    "expected": "Hiển thị gói Trải nghiệm FREE 1 ngày.",
+    "status": "Query completed: 1 trial plan",
+    "result": "VIP.plans(12) trả về gói Trải nghiệm FREE 1 ngày.",
+    "test_status": "PASS"
+  },
+  "TC12": {
+    "name": "User đã từng có DangKyVIP mở trang VIP",
+    "input": "userId=13, lịch sử DangKyVIP=đã tồn tại",
+    "expected": "Không còn hiển thị gói FREE 1 ngày.",
+    "status": "Query completed: 0 trial plan",
+    "result": "VIP.plans(13) không trả về gói FREE 1 ngày khi tài khoản đã có lịch sử DangKyVIP.",
+    "test_status": "PASS"
+  },
+  "TC13": {
+    "name": "User nhận gói FREE 1 ngày",
+    "input": "userId=3, planId=1, Gia=0, ThoiHan=1, chưa từng có DangKyVIP",
+    "expected": "Tạo DA_XAC_NHAN, thời hạn 1 ngày và có quyền VIP ngay.",
+    "status": "Database transaction COMMIT",
+    "result": "Tạo DangKyVIP=DA_XAC_NHAN, NgayKetThuc=NOW()+1 DAY và TrangThaiVIP=1.",
+    "test_status": "PASS"
+  },
+  "TC14": {
+    "name": "User chọn VIP trả phí và xác nhận thanh toán mô phỏng",
+    "input": "userId=7, planId=2, Gia=49000, ThoiHan=30, paymentMethod=BANK_TRANSFER",
+    "expected": "Tạo yêu cầu CHO_XAC_NHAN.",
+    "status": "Database transaction COMMIT",
+    "result": "Sau xác nhận thanh toán mô phỏng, tạo DangKyVIP trạng thái CHO_XAC_NHAN cho gói 30 ngày.",
+    "test_status": "PASS"
+  },
+  "TC15": {
+    "name": "Admin khóa USER và nhập lý do hợp lệ",
+    "input": "userId=7, reason='Vi phạm quy định', email=locked@wave.local, password=12345678",
+    "expected": "TrangThai=0, lưu LyDoKhoa; user bị từ chối đăng nhập.",
+    "status": "HTTP 302 Found -> /login",
+    "result": "TrangThai=0, LyDoKhoa được lưu; đăng nhập bị từ chối với lý do khóa.",
+    "test_status": "PASS"
+  },
+  "TC16": {
+    "name": "Admin mở khóa USER",
+    "input": "userId=7, email=unlocked@wave.local, password=12345678",
+    "expected": "TrangThai=1, LyDoKhoa=NULL; user đăng nhập lại được.",
+    "status": "HTTP 302 Found -> /",
+    "result": "TrangThai=1, LyDoKhoa=NULL; đăng nhập thành công và session userId=7 được tạo lại.",
+    "test_status": "PASS"
+  }
+}
