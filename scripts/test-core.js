@@ -7,8 +7,8 @@ const { finished } = require('node:stream/promises');
 
 const root = path.resolve(__dirname, '..');
 const resultDir = path.join(root, 'test-results');
-const summaryFile = path.join(resultDir, 'test_results_summary.json');
-const textFile = path.join(resultDir, 'test_results.txt');
+const summaryFile = path.join(resultDir, 'unit_test_results_summary.json');
+const textFile = path.join(resultDir, 'unit_test_results.txt');
 
 const fakeDb = {
   query: async () => [[]],
